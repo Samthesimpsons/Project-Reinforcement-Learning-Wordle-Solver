@@ -196,6 +196,6 @@ if __name__ == '__main__':
     print(f'Total game losses out of {training_epochs}: {np.sum(guesses>6)}')
     print(f'Overall win rate: {(training_epochs-np.sum(guesses>6))/training_epochs*100}%')
     
-    # Plot results
-    plt.bar(epochs,guesses)
+    # Plot results as a histogram
+    plt.hist(guesses)
     plt.show()
