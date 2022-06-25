@@ -188,7 +188,7 @@ def reinforcement_learning():
 
     while not done:
         state = wordle.get_state()
-        wordle.current_word = 
+        wordle.current_word = None
         word_to_filter_on = state
 
         # keep track of the corpus before and after filtering (cutting search space)
