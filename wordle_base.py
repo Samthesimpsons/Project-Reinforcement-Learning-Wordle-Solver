@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 
 ''' List of feasible words that our reinforcement learning model will be trained on, 
 5-letter words from Wordle. Source: https://www.nytimes.com/games/wordle/index.html
-Extracted the 2309 goal words from the source code javascript file (attached, var z) 
-and then sorted accordingly.'''
+Extracted the 2309 goal words from the source code javascript file and then sorted accordingly. 
+https://www.pcmag.com/how-to/want-to-up-your-wordle-game-the-winning-word-is-right-on-the-page'''
 words = []
 with open('words.txt','r') as file:
     for word in file:
@@ -187,7 +187,7 @@ def reinforcement_learning():
 if __name__ == '__main__':
 
     # Total number of game simulations (epochs)
-    training_epochs=100
+    training_epochs=10
     epochs = np.arange(training_epochs)
     guesses = np.zeros(training_epochs)
     for i in tqdm(range(training_epochs)):
@@ -199,5 +199,6 @@ if __name__ == '__main__':
     print(f'Overall win rate: {(training_epochs-np.sum(guesses>6))/training_epochs*100}%')
     
     # Plot results as a histogram
+    # plt.bar(epochs,guesses)
     plt.hist(guesses)
     plt.show()
