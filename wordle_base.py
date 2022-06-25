@@ -5,7 +5,9 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 ''' List of feasible words that our reinforcement learning model will be trained on, 
-5-letter words from Wordle. Source: https://gist.github.com/cfreshman'''
+5-letter words from Wordle. Source: https://www.nytimes.com/games/wordle/index.html
+Extracted the 2309 goal words from the source code javascript file (attached, var z) 
+and then sorted accordingly.'''
 words = []
 with open('words.txt','r') as file:
     for word in file:
@@ -15,7 +17,7 @@ with open('words.txt','r') as file:
 also includes getter methods for the state and the goal word '''
 class Wordle():
     def __init__(self, initial_word =  'CRANE'):
-        self.initial_word = initial_word
+        # self.initial_word = initial_word
         self.current_word = initial_word
         self.goal_word = random.choice(words) 
         self.reached_goal = False
