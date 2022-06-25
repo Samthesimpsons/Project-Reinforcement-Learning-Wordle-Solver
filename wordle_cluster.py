@@ -167,6 +167,7 @@ class eval():
         return words
 
 ''' RL function that contains the Q-learning algorithm.'''
+# TODO: Update the RL algorithm, in the progress
 def reinforcement_learning():
     epsilon = 0.1 # probability of random action, exploration
     alpha = 0.1 # learning rate
