@@ -50,10 +50,6 @@ class Clustering():
 
     def get_chosen_word(self, indexes, corpus, distance_matrix):
         chosen_word_index = random.choice(indexes)
-        # row_sum = {}
-        # for i in indexes:
-        #     row_sum[i] = sum(distance_matrix[i])
-        # chosen_word_index = min(row_sum, key = row_sum.get)
         return corpus[chosen_word_index] 
 
     def get_clusters(self, corpus):
@@ -66,10 +62,9 @@ class Clustering():
 1. Do clustering on the whole corpus
 then for each iteration 
 2. Use Q-leaning to select the a cluster from which to draw our word from
-3. The word drawn will be the word with the minimum total levenshtein distance
+3. The word drawn will be a random word from the chosen cluster
 4. Evaluate the word, calculate the reward, to fliter the cluster
-5. Either explore other clusters or exploit the Q-table argmax
-'''
+5. Either explore other clusters or exploit the Q-table argmax'''
 
 ''' Custom Wordle class that defines the state of the wordle and the actions (and reward) that can be taken 
 also includes getter methods for the state and the goal word '''
