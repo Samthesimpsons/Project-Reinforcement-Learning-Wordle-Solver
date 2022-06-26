@@ -29,8 +29,8 @@ Hence the choice of clustering would be to use agglomerative hierarchical cluste
 
 ''' Custom Clustering class that does the clustering based on the similarities of the words'''
 class Clustering():
-    def __init__(self):
-        pass
+    def __init__(self, number_of_clusters):
+        self.number_of_clusters = number_of_clusters
 
     def get_dist_matrix(self, corpus):
         n = len(corpus)
@@ -41,10 +41,25 @@ class Clustering():
                 distance_matrix[j,i] = distance_matrix[i,j]
         return distance_matrix
 
+    def get_indexes_of_cluster(self, cluster_number:int, clusters):
+        indexes = []
+        for index, number in enumerate(clusters):
+            if cluster_number == number:
+                indexes.append(index)
+        return indexes
+
+    def get_chosen_word(self, indexes, corpus, distance_matrix):
+        chosen_word_index = random.choice(indexes)
+        # row_sum = {}
+        # for i in indexes:
+        #     row_sum[i] = sum(distance_matrix[i])
+        # chosen_word_index = min(row_sum, key = row_sum.get)
+        return corpus[chosen_word_index] 
+
     def get_clusters(self, corpus):
         distance_matrix = self.get_dist_matrix(corpus)
         # Can do simulation analysis to test the parameters
-        clusters = AgglomerativeClustering(n_clusters = 10, affinity = 'precomputed', linkage = 'average').fit_predict(distance_matrix)
+        clusters = AgglomerativeClustering(n_clusters = self.number_of_clusters, affinity = 'precomputed', linkage = 'average').fit_predict(distance_matrix)
         return clusters
 
 '''The new idea now shall be, for each simulation run of the RL algorithm:
@@ -59,8 +74,8 @@ then for each iteration
 ''' Custom Wordle class that defines the state of the wordle and the actions (and reward) that can be taken 
 also includes getter methods for the state and the goal word '''
 class Wordle():
-    def __init__(self):
-        self.current_word = None
+    def __init__(self, initial_word =  'CRANE'):
+        self.current_word = initial_word
         self.current_state = 1
         self.goal_word = random.choice(words) 
         self.reached_goal = False
@@ -79,8 +94,8 @@ class Wordle():
         current_score = eval.get_score(self.current_word, self.goal_word)
 
         # select next word and get a new scoring 
-        self.current_state = state
         self.current_word = action
+        self.current_state = state
         new_score = eval.get_score(self.current_word, self.goal_word)
 
         # calculate reward of previous word to new word
@@ -140,38 +155,37 @@ class eval():
         # remove any words with the black letters
         if len(black_letters) != 0:
             strings_to_remove = "[{}]".format("".join(black_letters))
-            words = [word for word in words if re.sub(strings_to_remove, '', word) == word]
+            words = [word for word in words if (re.sub(strings_to_remove, '', word) == word or word == word_1)]
             
         # remove any words with the yellow letters in that position and if not in that position, only keep those in other positions
         if len(yellow_letters) != 0:
             for word in words:
-                for key, value in yellow_letters.items():
-                    if word[value] == key:
-                        words.remove(word)
-                        break
-                    elif word[value] != key:
-                        if key not in word:
+                if word != word_1:
+                    for key, value in yellow_letters.items():
+                        if word[value] == key:
                             words.remove(word)
                             break
+                        elif word[value] != key:
+                            if key not in word:
+                                words.remove(word)
+                                break
 
         # remove any words with the green letters not in that position
         if len(green_letters) != 0:
             for word in words:
-                for key,value in green_letters.items():
-                    if word[value] != key:
-                        words.remove(word)
-                        break
+                if word != word_1:
+                    for key,value in green_letters.items():
+                        if word[value] != key:
+                            words.remove(word)
+                            break
         
-        # append back the word we evaluating on to prevent list error, then return filtered corpus
-        words.append(word_1)
+        # return filtered corpus
         return words
 
-''' RL function that contains the Q-learning algorithm.'''
-# TODO: Update the RL algorithm, in the progress
-def reinforcement_learning():
-    epsilon = 0.1 # probability of random action, exploration
-    alpha = 0.1 # learning rate
-    gamma = 0.9 # discounting factor
+def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_factor: int, number_of_cluster: int):
+    epsilon = exploration_rate # probability of random action, exploration
+    alpha = learning_rate # learning rate
+    gamma = shrinkage_factor # discounting factor
 
     wordle = Wordle()
     done = False
@@ -180,17 +194,20 @@ def reinforcement_learning():
     # initialize Q-table, goal word and the current corpus
     goal_word = wordle.get_goal()
     curr_corpus = words.copy()
-    q_table = np.zeros((len(curr_corpus), len(curr_corpus)))
+    q_table = np.zeros((number_of_cluster, number_of_cluster))
 
     # initialize distance matrix (similarities) and the clustering results
-    clustering = Clustering()
-    distance_matrix = clustering.get_dist_matrix(curr_corpus)
-    cluster_results = clustering.get_clusters(curr_corpus)
+    c = Clustering(number_of_cluster)
+    distance_matrix = c.get_dist_matrix(curr_corpus)
+    cluster_results = c.get_clusters(curr_corpus)
 
     while not done:
-        state = wordle.get_state()
-        wordle.current_word = None
-        word_to_filter_on = state
+        # get the cluster number to select from
+        state = wordle.get_state() 
+        # get indexes of all matching states in the corpus
+        indexes_of_state = c.get_indexes_of_cluster(state, cluster_results) 
+        # get the word with the minimum total levenshtein distance in the state (chosen cluster number)
+        word_to_filter_on = c.get_chosen_word(indexes_of_state, curr_corpus, distance_matrix)
 
         # keep track of the corpus before and after filtering (cutting search space)
         prev_corpus = curr_corpus.copy()
@@ -198,38 +215,41 @@ def reinforcement_learning():
     
         # Similarly, reduce the search space of the Q-table
         indices_removed = []
-        for word in curr_corpus:
-            if word not in prev_corpus:
-                indices_removed.append(prev_corpus.index(word))           
+        for i,word in enumerate(prev_corpus):
+            if word not in curr_corpus:
+                indices_removed.append(i)                       
 
-        q_table = np.delete(q_table, indices_removed, axis=0)
-        q_table = np.delete(q_table, indices_removed, axis=1)
-
-        state_index = curr_corpus.index(state)
+        distance_matrix = np.delete(distance_matrix, indices_removed, axis=0)
+        distance_matrix = np.delete(distance_matrix, indices_removed, axis=1)
+        cluster_results = np.delete(cluster_results, indices_removed, axis=0)
 
         # exploration
         if random.uniform(0,1) < epsilon:
-            action = random.choice(curr_corpus)
-            action_index = curr_corpus.index(action)
+            list_of_states_to_explore = list(set(cluster_results))
+            if len(list_of_states_to_explore) != 1:
+                list_of_states_to_explore.remove(state)
+            action_index = random.choice(list_of_states_to_explore)
         # exploitation
         else:
             # Q-table is very sparse in beginning, hence if the row of Q-table all similar still (0), do exploration still
-            if np.all(q_table[state_index][i] == q_table[state_index][0] for i in range(len(curr_corpus))):
-                action = random.choice(curr_corpus)
-                action_index = curr_corpus.index(action)
+            if np.all(q_table[state][i] == q_table[state][0] for i in range(len(curr_corpus))):
+                list_of_states_to_explore = list(set(cluster_results))
+                if len(list_of_states_to_explore) != 1:
+                    list_of_states_to_explore.remove(state)
+                action_index = random.choice(list_of_states_to_explore)
             # else exploit as usual
             else:
-                action_index = np.argmax(q_table[state_index])
-                action = curr_corpus[action_index]
+                action_index = np.argmax(q_table[state])
+
+        action = c.get_chosen_word(c.get_indexes_of_cluster(action_index, cluster_results) , curr_corpus, distance_matrix)
 
         # get reward and update Q-table
-        reward, done = wordle.make_action(action)        
-        
-        new_state = wordle.get_state()
-        new_state_max = np.max(q_table[curr_corpus.index(new_state)])
-        
-        q_table[state_index, action_index] = (1 - alpha)*q_table[state_index, action_index] + alpha*(reward + gamma*new_state_max - q_table[state_index, action_index])
-        
+        new_state = action_index
+        reward, done = wordle.make_action(action, new_state)        
+        new_state_max = np.max(q_table[new_state])
+
+        q_table[state, action_index] = (1 - alpha)*q_table[state, action_index] + alpha*(reward + gamma*new_state_max - q_table[state, action_index])
+    
         # Increment the steps
         steps = steps + 1
         
@@ -239,20 +259,18 @@ def reinforcement_learning():
     return steps
 
 if __name__ == '__main__':
-
-    # Total number of game simulations (epochs)
-    training_epochs=10
+    training_epochs=100
     epochs = np.arange(training_epochs)
     guesses = np.zeros(training_epochs)
     for i in tqdm(range(training_epochs)):
-        steps = reinforcement_learning() # run RL algorithm
+        steps = reinforcement_learning(learning_rate=0.1, exploration_rate=0.1, shrinkage_factor=0.9, number_of_cluster=15) # run RL algorithm
         guesses[i] = steps
 
     print(f'Average guesses: {np.mean(guesses)}')
     print(f'Total game losses out of {training_epochs}: {np.sum(guesses>6)}')
     print(f'Overall win rate: {(training_epochs-np.sum(guesses>6))/training_epochs*100}%')
-    
-    # Plot results as a histogram
-    # plt.bar(epochs,guesses)
-    plt.hist(guesses)
+
+    # Plot results as a bar or histogram
+    plt.bar(epochs,guesses)
+    # plt.hist(guesses)
     plt.show()

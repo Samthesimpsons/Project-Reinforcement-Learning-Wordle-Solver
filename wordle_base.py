@@ -93,37 +93,38 @@ class eval():
         # remove any words with the black letters
         if len(black_letters) != 0:
             strings_to_remove = "[{}]".format("".join(black_letters))
-            words = [word for word in words if re.sub(strings_to_remove, '', word) == word]
+            words = [word for word in words if (re.sub(strings_to_remove, '', word) == word or word == word_1)]
             
         # remove any words with the yellow letters in that position and if not in that position, only keep those in other positions
         if len(yellow_letters) != 0:
             for word in words:
-                for key, value in yellow_letters.items():
-                    if word[value] == key:
-                        words.remove(word)
-                        break
-                    elif word[value] != key:
-                        if key not in word:
+                if word != word_1:
+                    for key, value in yellow_letters.items():
+                        if word[value] == key:
                             words.remove(word)
                             break
+                        elif word[value] != key:
+                            if key not in word:
+                                words.remove(word)
+                                break
 
         # remove any words with the green letters not in that position
         if len(green_letters) != 0:
             for word in words:
-                for key,value in green_letters.items():
-                    if word[value] != key:
-                        words.remove(word)
-                        break
+                if word != word_1:
+                    for key,value in green_letters.items():
+                        if word[value] != key:
+                            words.remove(word)
+                            break
         
-        # append back the word we evaluating on to prevent list error, then return filtered corpus
-        words.append(word_1)
+        # return filtered corpus
         return words
 
 ''' RL function that contains the Q-learning algorithm.'''
-def reinforcement_learning():
-    epsilon = 0.1 # probability of random action, exploration
-    alpha = 0.1 # learning rate
-    gamma = 0.9 # discounting factor
+def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_factor: int):
+    epsilon = exploration_rate # probability of random action, exploration
+    alpha = learning_rate # learning rate
+    gamma = shrinkage_factor # discounting factor
 
     wordle = Wordle()
     done = False
@@ -144,9 +145,9 @@ def reinforcement_learning():
     
         # Similarly, reduce the search space of the Q-table
         indices_removed = []
-        for word in curr_corpus:
-            if word not in prev_corpus:
-                indices_removed.append(prev_corpus.index(word))           
+        for i,word in enumerate(prev_corpus):
+            if word not in curr_corpus:
+                indices_removed.append(i)               
 
         q_table = np.delete(q_table, indices_removed, axis=0)
         q_table = np.delete(q_table, indices_removed, axis=1)
@@ -187,11 +188,11 @@ def reinforcement_learning():
 if __name__ == '__main__':
 
     # Total number of game simulations (epochs)
-    training_epochs=10
+    training_epochs=100
     epochs = np.arange(training_epochs)
     guesses = np.zeros(training_epochs)
     for i in tqdm(range(training_epochs)):
-        steps = reinforcement_learning() # run RL algorithm
+        steps = reinforcement_learning(learning_rate=0.1, exploration_rate=0.1, shrinkage_factor=0.9) # run RL algorithm
         guesses[i] = steps
 
     print(f'Average guesses: {np.mean(guesses)}')
