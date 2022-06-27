@@ -5,6 +5,7 @@ from tqdm import tqdm
 from leven import levenshtein
 from sklearn.cluster import AgglomerativeClustering
 import matplotlib.pyplot as plt
+from numpy import unravel_index
 
 ''' List of feasible words that our reinforcement learning model will be trained on, 
 5-letter words from Wordle. Source: https://www.nytimes.com/games/wordle/index.html
@@ -200,7 +201,7 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
     cluster_results = c.get_clusters(curr_corpus)
 
     # Initialize the first word
-    wordle.current_word = 'TARES'
+    wordle.current_word = 'CRANE'
     wordle.current_state = cluster_results[curr_corpus.index(wordle.get_curr_word())]
 
     visited_words = []
@@ -258,22 +259,34 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         # exit condition in case search too long, set currently to total length of initial corpus
         if steps >= len(words):
             break
-    print(visited_words)
+    # print(visited_words)
     return steps
 
 if __name__ == '__main__':
-    training_epochs=100
-    epochs = np.arange(training_epochs)
-    guesses = np.zeros(training_epochs)
-    for i in tqdm(range(training_epochs)):
-        steps = reinforcement_learning(learning_rate=0.1, exploration_rate=0.1, shrinkage_factor=0.9, number_of_cluster=10) # run RL algorithm
-        guesses[i] = steps
 
-    print(f'Average guesses: {np.mean(guesses)}')
-    print(f'Total game losses out of {training_epochs}: {np.sum(guesses>6)}')
-    print(f'Overall win rate: {(training_epochs-np.sum(guesses>6))/training_epochs*100}%')
+    learning_rates = np.arange(0.1,1,0.1)
+    shrinkage_factors = np.arange(0.1,1,0.1)
+    win_rates = np.zeros((len(learning_rates),len(shrinkage_factors)))
+
+    for i,learning_rate in tqdm(enumerate(learning_rates)):
+        for j,shrinkage_factor in enumerate(shrinkage_factors):
+            training_epochs=100
+            epochs = np.arange(training_epochs)
+            guesses = np.zeros(training_epochs)
+            for epoch in range(training_epochs):
+                steps = reinforcement_learning(learning_rate=learning_rate, exploration_rate=0.1, shrinkage_factor=shrinkage_factor, number_of_cluster=10) # run RL algorithm
+                guesses[epoch] = steps
+            win_rate = (training_epochs-np.sum(guesses>6))/training_epochs*100
+            win_rates[i][j] = win_rate
+
+    print(win_rates)
+    print(unravel_index(win_rates.argmax(), win_rates.shape))
+    win_rates.tofile('result.csv',sep=',')
+    # print(f'Average guesses: {np.mean(guesses)}')
+    # print(f'Total game losses out of {training_epochs}: {np.sum(guesses>6)}')
+    # print(f'Overall win rate: {(training_epochs-np.sum(guesses>6))/training_epochs*100}%')
 
     # Plot results as a bar or histogram
-    plt.bar(epochs,guesses)
-    # plt.hist(guesses)
-    plt.show()
+    # plt.bar(epochs,guesses)
+    # # plt.hist(guesses)
+    # plt.show()
