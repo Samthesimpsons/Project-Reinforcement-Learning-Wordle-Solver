@@ -90,6 +90,7 @@ class Wordle():
             current_score = {'green': 0, 'yellow': 0, 'black': 0}
         else:
             current_score = eval.get_score(self.current_word, self.goal_word)
+
         # select next word and get a new scoring 
         self.current_word = action
         self.current_state = state
@@ -152,30 +153,30 @@ class eval():
         # remove any words with the black letters
         if len(black_letters) != 0:
             strings_to_remove = "[{}]".format("".join(black_letters))
-            words = [word for word in words if (re.sub(strings_to_remove, '', word) == word or word == word_1)]
+            words = [word for word in words if (re.sub(strings_to_remove, '', word) == word)]
             
         # remove any words with the yellow letters in that position and if not in that position, only keep those in other positions
         if len(yellow_letters) != 0:
             for word in words:
-                if word != word_1:
-                    for key, value in yellow_letters.items():
-                        if word[value] == key:
+                for key, value in yellow_letters.items():
+                    if word[value] == key:
+                        words.remove(word)
+                        break
+                    elif word[value] != key:
+                        if key not in word:
                             words.remove(word)
                             break
-                        elif word[value] != key:
-                            if key not in word:
-                                words.remove(word)
-                                break
 
         # remove any words with the green letters not in that position
         if len(green_letters) != 0:
             for word in words:
-                if word != word_1:
-                    for key,value in green_letters.items():
-                        if word[value] != key:
-                            words.remove(word)
-                            break
+                for key,value in green_letters.items():
+                    if word[value] != key:
+                        words.remove(word)
+                        break
         
+        if word_1 in words:
+            words.remove(word_1)
         # return filtered corpus
         return words
 
@@ -186,7 +187,7 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
 
     wordle = Wordle()
     done = False
-    steps = 0
+    steps = 1
 
     # initialize Q-table, goal word and the current corpus
     goal_word = wordle.get_goal()
@@ -198,19 +199,22 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
     distance_matrix = c.get_dist_matrix(curr_corpus)
     cluster_results = c.get_clusters(curr_corpus)
 
+    # Initialize the first word
+    wordle.current_word = 'TARES'
+    wordle.current_state = cluster_results[curr_corpus.index(wordle.get_curr_word())]
+
+    visited_words = []
     while not done:
-        # get the cluster number to select from
+        # get the cluster number and the word to filter on
         state = wordle.get_state() 
-        # get indexes of all matching states in the corpus
-        indexes_of_state = c.get_indexes_of_cluster(state, cluster_results) 
-        # get a random word from the chosen cluster
-        word_to_filter_on = c.get_chosen_word(indexes_of_state, curr_corpus)
+        word_to_filter_on = wordle.get_curr_word()
+        visited_words.append(word_to_filter_on)
 
         # keep track of the corpus before and after filtering (cutting search space)
         prev_corpus = curr_corpus.copy()
         curr_corpus = eval.filter(word_to_filter_on, goal_word, curr_corpus)
     
-        # Similarly, reduce the search space of the Q-table
+        # Similarly, reduce the search space of the matrices
         indices_removed = []
         for i,word in enumerate(prev_corpus):
             if word not in curr_corpus:
@@ -224,7 +228,8 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         if random.uniform(0,1) < epsilon:
             list_of_states_to_explore = list(set(cluster_results))
             if len(list_of_states_to_explore) != 1:
-                list_of_states_to_explore.remove(state)
+                if state in list_of_states_to_explore:
+                    list_of_states_to_explore.remove(state)
             action_index = random.choice(list_of_states_to_explore)
         # exploitation
         else:
@@ -232,26 +237,28 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
             if np.all(q_table[state][i] == q_table[state][0] for i in range(len(curr_corpus))):
                 list_of_states_to_explore = list(set(cluster_results))
                 if len(list_of_states_to_explore) != 1:
-                    list_of_states_to_explore.remove(state)
+                    if state in list_of_states_to_explore:
+                        list_of_states_to_explore.remove(state)
                 action_index = random.choice(list_of_states_to_explore)
             # else exploit as usual
             else:
                 action_index = np.argmax(q_table[state])
 
-        action = c.get_chosen_word(c.get_indexes_of_cluster(action_index, cluster_results) , curr_corpus)
+        action = c.get_chosen_word(c.get_indexes_of_cluster(action_index, cluster_results), curr_corpus)
 
         # get reward and update Q-table
         reward, done = wordle.make_action(action, action_index)        
         new_state_max = np.max(q_table[action_index])
 
         q_table[state, action_index] = (1 - alpha)*q_table[state, action_index] + alpha*(reward + gamma*new_state_max - q_table[state, action_index])
-    
+        
         # Increment the steps
         steps = steps + 1
-        
+
         # exit condition in case search too long, set currently to total length of initial corpus
         if steps >= len(words):
             break
+    print(visited_words)
     return steps
 
 if __name__ == '__main__':
