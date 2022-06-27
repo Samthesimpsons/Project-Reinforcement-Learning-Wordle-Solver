@@ -70,7 +70,7 @@ then for each iteration
 also includes getter methods for the state and the goal word '''
 class Wordle():
     def __init__(self):
-        self.current_word = "None"
+        self.current_word = None
         self.current_state = 1
         self.goal_word = random.choice(words) 
         self.reached_goal = False
