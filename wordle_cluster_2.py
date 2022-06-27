@@ -1,6 +1,7 @@
 import re
 import random
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 from leven import levenshtein
 from sklearn.cluster import AgglomerativeClustering
@@ -255,7 +256,7 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
     return steps
 
 if __name__ == '__main__':
-    training_epochs=1000
+    training_epochs=3000
     epochs = np.arange(training_epochs)
     guesses = np.zeros(training_epochs)
 
@@ -268,6 +269,9 @@ if __name__ == '__main__':
     print(f'Average guesses: {np.mean(guesses)}')
     print(f'Total game losses out of {training_epochs}: {np.sum(guesses>6)}')
     print(f'Overall win rate: {(training_epochs-np.sum(guesses>6))/training_epochs*100}%')
+
+    dataframe = pd.DataFrame(guesses) 
+    dataframe.to_csv("results.csv",index=False)
 
     # Plot results as a bar or histogram
     plt.bar(epochs,guesses)
