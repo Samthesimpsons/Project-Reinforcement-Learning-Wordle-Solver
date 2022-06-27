@@ -17,7 +17,6 @@ with open('words.txt','r') as file:
 also includes getter methods for the state and the goal word '''
 class Wordle():
     def __init__(self, initial_word =  'CRANE'):
-        # self.initial_word = initial_word
         self.current_word = initial_word
         self.goal_word = random.choice(words) 
         self.reached_goal = False
@@ -128,7 +127,7 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
 
     wordle = Wordle()
     done = False
-    steps = 0
+    steps = 1 # Since we start off with an initial word already, 1 step
 
     # initialize Q-table, goal word and the current corpus
     goal_word = wordle.get_goal()

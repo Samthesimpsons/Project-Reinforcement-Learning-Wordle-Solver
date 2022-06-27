@@ -48,7 +48,7 @@ class Clustering():
                 indexes.append(index)
         return indexes
 
-    def get_chosen_word(self, indexes, corpus, distance_matrix):
+    def get_chosen_word(self, indexes, corpus):
         chosen_word_index = random.choice(indexes)
         return corpus[chosen_word_index] 
 
@@ -69,8 +69,8 @@ then for each iteration
 ''' Custom Wordle class that defines the state of the wordle and the actions (and reward) that can be taken 
 also includes getter methods for the state and the goal word '''
 class Wordle():
-    def __init__(self, initial_word =  'CRANE'):
-        self.current_word = initial_word
+    def __init__(self):
+        self.current_word = "None"
         self.current_state = 1
         self.goal_word = random.choice(words) 
         self.reached_goal = False
@@ -86,8 +86,10 @@ class Wordle():
     
     def make_action(self, action, state):
         # scoring based on yellow, green & black letters
-        current_score = eval.get_score(self.current_word, self.goal_word)
-
+        if self.current_word == None:
+            current_score = {'green': 0, 'yellow': 0, 'black': 0}
+        else:
+            current_score = eval.get_score(self.current_word, self.goal_word)
         # select next word and get a new scoring 
         self.current_word = action
         self.current_state = state
@@ -201,8 +203,8 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         state = wordle.get_state() 
         # get indexes of all matching states in the corpus
         indexes_of_state = c.get_indexes_of_cluster(state, cluster_results) 
-        # get the word with the minimum total levenshtein distance in the state (chosen cluster number)
-        word_to_filter_on = c.get_chosen_word(indexes_of_state, curr_corpus, distance_matrix)
+        # get a random word from the chosen cluster
+        word_to_filter_on = c.get_chosen_word(indexes_of_state, curr_corpus)
 
         # keep track of the corpus before and after filtering (cutting search space)
         prev_corpus = curr_corpus.copy()
@@ -236,12 +238,11 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
             else:
                 action_index = np.argmax(q_table[state])
 
-        action = c.get_chosen_word(c.get_indexes_of_cluster(action_index, cluster_results) , curr_corpus, distance_matrix)
+        action = c.get_chosen_word(c.get_indexes_of_cluster(action_index, cluster_results) , curr_corpus)
 
         # get reward and update Q-table
-        new_state = action_index
-        reward, done = wordle.make_action(action, new_state)        
-        new_state_max = np.max(q_table[new_state])
+        reward, done = wordle.make_action(action, action_index)        
+        new_state_max = np.max(q_table[action_index])
 
         q_table[state, action_index] = (1 - alpha)*q_table[state, action_index] + alpha*(reward + gamma*new_state_max - q_table[state, action_index])
     
@@ -258,7 +259,7 @@ if __name__ == '__main__':
     epochs = np.arange(training_epochs)
     guesses = np.zeros(training_epochs)
     for i in tqdm(range(training_epochs)):
-        steps = reinforcement_learning(learning_rate=0.1, exploration_rate=0.1, shrinkage_factor=0.9, number_of_cluster=15) # run RL algorithm
+        steps = reinforcement_learning(learning_rate=0.1, exploration_rate=0.1, shrinkage_factor=0.9, number_of_cluster=10) # run RL algorithm
         guesses[i] = steps
 
     print(f'Average guesses: {np.mean(guesses)}')
