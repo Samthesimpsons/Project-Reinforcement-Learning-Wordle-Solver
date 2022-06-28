@@ -180,7 +180,7 @@ class eval():
         # return filtered corpus
         return words
 
-def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_factor: int, number_of_cluster: int):
+def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_factor: int, number_of_cluster: int, custom_goal : bool, custom_goal_word = None):
     epsilon = exploration_rate # probability of random action, exploration
     alpha = learning_rate # learning rate
     gamma = shrinkage_factor # discounting factor
@@ -190,7 +190,11 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
     steps = 1
 
     # initialize Q-table, goal word and the current corpus
-    goal_word = wordle.get_goal()
+    if custom_goal:
+        goal_word = custom_goal_word
+    else:
+        goal_word = wordle.get_goal()
+    print(goal_word)
     curr_corpus = words.copy()
     q_table = np.zeros((number_of_cluster, number_of_cluster))
 
@@ -209,6 +213,7 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         state = wordle.get_state() 
         word_to_filter_on = wordle.get_curr_word()
         visited_words.append(word_to_filter_on)
+        print(word_to_filter_on)
 
         # keep track of the corpus before and after filtering (cutting search space)
         prev_corpus = curr_corpus.copy()
@@ -259,7 +264,8 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         if steps >= len(words):
             break
     # print(visited_words)
-    return steps
+    visited_words.append(goal_word)
+    return steps,visited_words
 
 if __name__ == '__main__':
 
@@ -270,13 +276,14 @@ if __name__ == '__main__':
     # for i,learning_rate in tqdm(enumerate(learning_rates)):
     #     for j,shrinkage_factor in enumerate(shrinkage_factors):
 
-    training_epochs=1
+    training_epochs=5
     epochs = np.arange(training_epochs)
     guesses = np.zeros(training_epochs)
     for epoch in range(training_epochs):
-        steps = reinforcement_learning(learning_rate=0.1, exploration_rate=0.1, shrinkage_factor=0.9, number_of_cluster=10) # run RL algorithm
+        steps,visited_words = reinforcement_learning(learning_rate=0.1, exploration_rate=0.1, shrinkage_factor=0.9, number_of_cluster=10,custom_goal = False,custom_goal_word=None) # run RL algorithm
+        print(visited_words)
         guesses[epoch] = steps
-
+    
     # win_rate = (training_epochs-np.sum(guesses>6))/training_epochs*100
     # win_rates[i][j] = win_rate
 
@@ -291,3 +298,4 @@ if __name__ == '__main__':
     plt.bar(epochs,guesses)
     # # plt.hist(guesses)
     plt.show()
+    

@@ -187,7 +187,7 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
 if __name__ == '__main__':
 
     # Total number of game simulations (epochs)
-    training_epochs=100
+    training_epochs=3
     epochs = np.arange(training_epochs)
     guesses = np.zeros(training_epochs)
     for i in tqdm(range(training_epochs)):
