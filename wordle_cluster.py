@@ -149,32 +149,27 @@ class eval():
                 green_letters[word_1[i]] = i
             elif word_1[i] != word_2[i] and word_1[i] in word_2:
                 yellow_letters[word_1[i]] = i
-
-        # remove any words with the black letters
+    
+        # remove any words with the black letters (checked)
         if len(black_letters) != 0:
             strings_to_remove = "[{}]".format("".join(black_letters))
             words = [word for word in words if (re.sub(strings_to_remove, '', word) == word)]
-            
-        # remove any words with the yellow letters in that position and if not in that position, only keep those in other positions
-        if len(yellow_letters) != 0:
-            for word in words:
-                for key, value in yellow_letters.items():
-                    if word[value] == key:
-                        words.remove(word)
-                        break
-                    elif word[value] != key:
-                        if key not in word:
-                            words.remove(word)
-                            break
 
-        # remove any words with the green letters not in that position
+        # keep only words with correct green position (checked)
         if len(green_letters) != 0:
-            for word in words:
-                for key,value in green_letters.items():
-                    if word[value] != key:
-                        words.remove(word)
-                        break
+            for key, value in green_letters.items():
+                words = [word for word in words if word[value] == key]
+
+        # Do not keep words with current yellow position (checked)
+        if len(yellow_letters) != 0:
+            for key, value in yellow_letters.items():
+                words = [word for word in words if word[value] != key]
         
+        # Do not keep words with yellow letters (checked)
+        if len(yellow_letters) != 0:
+            for yellow_letter in yellow_letters.keys():
+                words = [word for word in words if yellow_letter in word]
+
         if word_1 in words:
             words.remove(word_1)
         # return filtered corpus
@@ -194,7 +189,6 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         goal_word = custom_goal_word
     else:
         goal_word = wordle.get_goal()
-    print(goal_word)
     curr_corpus = words.copy()
     q_table = np.zeros((number_of_cluster, number_of_cluster))
 
@@ -213,12 +207,11 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         state = wordle.get_state() 
         word_to_filter_on = wordle.get_curr_word()
         visited_words.append(word_to_filter_on)
-        print(word_to_filter_on)
 
         # keep track of the corpus before and after filtering (cutting search space)
         prev_corpus = curr_corpus.copy()
         curr_corpus = eval.filter(word_to_filter_on, goal_word, curr_corpus)
-    
+
         # Similarly, reduce the search space of the matrices
         indices_removed = []
         for i,word in enumerate(prev_corpus):
@@ -265,33 +258,19 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         if steps >= len(words):
             break
 
-    # print(visited_words)
     visited_words.append(goal_word)
-    return steps,visited_words
+    return steps, visited_words
 
 if __name__ == '__main__':
 
-    # learning_rates = np.arange(0.1,1,0.1)
-    # shrinkage_factors = np.arange(0.1,1,0.1)
-    # win_rates = np.zeros((len(learning_rates),len(shrinkage_factors)))
-
-    # for i,learning_rate in tqdm(enumerate(learning_rates)):
-    #     for j,shrinkage_factor in enumerate(shrinkage_factors):
-
-    training_epochs=1000
+    training_epochs=100
     epochs = np.arange(training_epochs)
     guesses = np.zeros(training_epochs)
     for epoch in range(training_epochs):
-        steps,visited_words = reinforcement_learning(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=10,custom_goal = False,custom_goal_word=None) # run RL algorithm
+        steps, visited_words = reinforcement_learning(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=10,custom_goal = False,custom_goal_word=None) # run RL algorithm
         print(visited_words)
         guesses[epoch] = steps
     
-    # win_rate = (training_epochs-np.sum(guesses>6))/training_epochs*100
-    # win_rates[i][j] = win_rate
-
-    # print(win_rates)
-    # print(unravel_index(win_rates.argmax(), win_rates.shape))
-    # win_rates.tofile('result.csv',sep=',')
     print(f'Average guesses: {np.mean(guesses)}')
     print(f'Total game losses out of {training_epochs}: {np.sum(guesses>6)}')
     print(f'Overall win rate: {(training_epochs-np.sum(guesses>6))/training_epochs*100}%')

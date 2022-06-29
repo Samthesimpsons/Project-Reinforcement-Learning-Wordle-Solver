@@ -10,7 +10,4 @@ Current Goal Word "beady" caa 25062022
     - Average guesses: 6.83
     - Total game losses out of 100: 48
     - Overall win rate: 52.0%
-2. Wordle Hierarchical Clustering based on Levenshtein distance RL: ~80%, 2.85s/run
-    - Average guesses: 5.71
-    - Total game losses out of 100: 18
-    - Overall win rate: 82.0%
+2. Wordle Hierarchical Clustering based on Levenshtein distance RL: 
