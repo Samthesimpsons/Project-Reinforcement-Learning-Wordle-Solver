@@ -120,7 +120,7 @@ class eval():
         return words
 
 ''' RL function that contains the Q-learning algorithm.'''
-def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_factor: int):
+def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_factor: int, custom_goal : bool, custom_goal_word = None):
     epsilon = exploration_rate # probability of random action, exploration
     alpha = learning_rate # learning rate
     gamma = shrinkage_factor # discounting factor
@@ -130,13 +130,19 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
     steps = 1 # Since we start off with an initial word already, 1 step
 
     # initialize Q-table, goal word and the current corpus
-    goal_word = wordle.get_goal()
+    if custom_goal:
+        goal_word = custom_goal_word
+        wordle.goal_word = goal_word
+    else:
+        goal_word = wordle.get_goal()
     curr_corpus = words.copy()
     q_table = np.zeros((len(curr_corpus), len(curr_corpus)))
 
+    visited_words = []
     while not done:
         state = wordle.get_state()
         word_to_filter_on = state
+        visited_words.append(word_to_filter_on)
 
         # keep track of the corpus before and after filtering (cutting search space)
         prev_corpus = curr_corpus.copy()
@@ -182,7 +188,9 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         # exit condition in case search too long, set currently to total length of initial corpus
         if steps >= len(words):
             break
-    return steps
+    
+    visited_words.append(goal_word)
+    return steps,visited_words
 
 if __name__ == '__main__':
 
@@ -191,7 +199,7 @@ if __name__ == '__main__':
     epochs = np.arange(training_epochs)
     guesses = np.zeros(training_epochs)
     for i in tqdm(range(training_epochs)):
-        steps = reinforcement_learning(learning_rate=0.1, exploration_rate=0.1, shrinkage_factor=0.9) # run RL algorithm
+        steps,visited_words = reinforcement_learning(learning_rate=0.1, exploration_rate=0.1, shrinkage_factor=0.9,custom_goal = False,custom_goal_word=None) # run RL algorithm
         guesses[i] = steps
 
     print(f'Average guesses: {np.mean(guesses)}')
