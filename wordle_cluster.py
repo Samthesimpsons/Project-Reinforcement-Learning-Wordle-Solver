@@ -24,13 +24,11 @@ with open('goal_words.txt', 'r') as file:
 ''' Instead of the words themselves being the state of the game, and also to further reduce the search space,
 the idea of clustering comes into mind. The motivation also came from https://github.com/danschauder/wordlebot/blob/main/Wordle_Bot.ipynb.
 However, we will do doing our own version and not referencing the above repository. Best way to learn is to do it yourself!
-
 In order to measure the similarity between two words without the sentiment value, we can make use of the levenshtein distance or better
 known as the edit distance, which is really the minimum number of single-character edits required to change from one word to another.
 For clustering wise, instead of viewing the space of words as a vector space, since we are comparing words between each other, an hierarchical
 tree structure seems the most appropriate. Next consideration, is whether a top-down or bottom-up clustering approach is more feasible. Since the 
 nodes of the tree are the words themselves and we want to group similar words together, a bottom-up approach is more suited.
-
 Hence the choice of clustering would be to use agglomerative hierarchical clustering based on levenshtein distance measure.'''
 
 ''' Custom Clustering class that does the clustering based on the similarities of the words'''
@@ -233,7 +231,6 @@ def reinforcement_learning(learning_rate: int,
         # keep track of the corpus before and after filtering (cutting search space)
         prev_corpus = curr_corpus.copy()
         curr_corpus = eval.filter(word_to_filter_on, goal_word, curr_corpus)
-
         # Similarly, reduce the search space of the matrices
         indices_removed = []
         for i, word in enumerate(prev_corpus):

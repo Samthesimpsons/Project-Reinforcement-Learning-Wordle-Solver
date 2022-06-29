@@ -129,8 +129,6 @@ class eval():
 
 
 ''' RL function that contains the Q-learning algorithm.'''
-
-
 def reinforcement_learning(learning_rate: int,
                            exploration_rate: int,
                            shrinkage_factor: int,
