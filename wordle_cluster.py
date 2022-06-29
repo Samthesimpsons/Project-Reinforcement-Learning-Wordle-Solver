@@ -230,6 +230,7 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         cluster_results = np.delete(cluster_results, indices_removed, axis=0)
 
         # exploration
+        epsilon = epsilon / (steps ** 2)
         if random.uniform(0,1) < epsilon:
             list_of_states_to_explore = list(set(cluster_results))
             if len(list_of_states_to_explore) != 1:
@@ -263,6 +264,7 @@ def reinforcement_learning(learning_rate: int, exploration_rate: int, shrinkage_
         # exit condition in case search too long, set currently to total length of initial corpus
         if steps >= len(words):
             break
+
     # print(visited_words)
     visited_words.append(goal_word)
     return steps,visited_words
@@ -276,11 +278,11 @@ if __name__ == '__main__':
     # for i,learning_rate in tqdm(enumerate(learning_rates)):
     #     for j,shrinkage_factor in enumerate(shrinkage_factors):
 
-    training_epochs=5
+    training_epochs=1000
     epochs = np.arange(training_epochs)
     guesses = np.zeros(training_epochs)
     for epoch in range(training_epochs):
-        steps,visited_words = reinforcement_learning(learning_rate=0.1, exploration_rate=0.1, shrinkage_factor=0.9, number_of_cluster=10,custom_goal = False,custom_goal_word=None) # run RL algorithm
+        steps,visited_words = reinforcement_learning(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=10,custom_goal = False,custom_goal_word=None) # run RL algorithm
         print(visited_words)
         guesses[epoch] = steps
     
