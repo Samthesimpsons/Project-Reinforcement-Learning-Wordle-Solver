@@ -1,3 +1,6 @@
+'''Source: https://github.com/baraltech/Wordle-PyGame
+Cloned pygame app for wordle, adjusted it to our AI bot solver case'''
+
 import pygame
 import sys
 import random
@@ -19,19 +22,20 @@ today_wordle = WORDS[today_wordle_index]
 
 results = run_simulations(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=1, number_of_cluster=10)
 print(results)
+
 pygame.init()
 
 # Constants
-
 WIDTH, HEIGHT = 633, 900
-
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 BACKGROUND = pygame.image.load("assets/Starting Tiles.png")
 BACKGROUND_RECT = BACKGROUND.get_rect(center=(317, 300))
-ICON = pygame.image.load("assets/Icon.png")
+SCREEN.fill("white")
+SCREEN.blit(BACKGROUND, BACKGROUND_RECT)
 
-pygame.display.set_caption("Wordle!")
+ICON = pygame.image.load("assets/Icon.png")
 pygame.display.set_icon(ICON)
+pygame.display.set_caption("Wordle!")
 
 GREEN = "#6aaa64"
 YELLOW = "#c9b458"
@@ -42,12 +46,8 @@ FILLED_OUTLINE = "#878a8c"
 CORRECT_WORD = today_wordle
 
 ALPHABET = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
-
 GUESSED_LETTER_FONT = pygame.font.Font("assets/FreeSansBold.otf", 50)
 AVAILABLE_LETTER_FONT = pygame.font.Font("assets/FreeSansBold.otf", 25)
-
-SCREEN.fill("white")
-SCREEN.blit(BACKGROUND, BACKGROUND_RECT)
 
 pygame.display.update()
 
@@ -56,7 +56,6 @@ LETTER_Y_SPACING = 12
 LETTER_SIZE = 75
 
 # Global variables
-
 guesses_count = 0
 
 # guesses is a 2D list that will store guesses. A guess will be a list of letters.
@@ -219,15 +218,6 @@ def create_new_letter():
         for letter in guess:
             letter.draw()
 
-def delete_letter():
-    # Deletes the last letter from the guess.
-    global current_guess_string, current_letter_bg_x
-    guesses[guesses_count][-1].delete()
-    guesses[guesses_count].pop()
-    current_guess_string = current_guess_string[:-1]
-    current_guess.pop()
-    current_letter_bg_x -= LETTER_X_SPACING
-
 while True:
     if game_result != "":
         play_again()
@@ -242,9 +232,6 @@ while True:
                 else:
                     if len(current_guess_string) == 5 and current_guess_string.lower() in WORDS:
                         check_guess(current_guess)
-            elif event.key == pygame.K_BACKSPACE:
-                if len(current_guess_string) > 0:
-                    delete_letter()
             else:
                 key_pressed = event.unicode.upper()
                 if key_pressed in "QWERTYUIOPASDFGHJKLZXCVBNM" and key_pressed != "":
