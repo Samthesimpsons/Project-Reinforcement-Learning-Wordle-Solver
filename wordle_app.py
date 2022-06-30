@@ -2,8 +2,8 @@ import re
 import sys
 import random
 import pygame
-from datetime import date
 import numpy as np
+from datetime import date
 from leven import levenshtein
 from sklearn.cluster import AgglomerativeClustering
 
@@ -254,7 +254,7 @@ pygame.init()
 
 # Constants
 WIDTH, HEIGHT = 633, 900
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT),pygame.SCALED)
 BACKGROUND = pygame.image.load("assets/Starting Tiles.png")
 BACKGROUND_RECT = BACKGROUND.get_rect(center=(317, 300))
 SCREEN.fill("white")
@@ -416,7 +416,7 @@ def play_again():
     play_again_font = pygame.font.Font("assets/FreeSansBold.otf", 40)
     play_again_text = play_again_font.render("Press ESC to rerun!", True, "black")
     play_again_rect = play_again_text.get_rect(center=(WIDTH/2, 700))
-    word_was_text = play_again_font.render(f"Worlde AI Bot solved for {CORRECT_WORD.upper()}!", True, "black")
+    word_was_text = play_again_font.render(f"Today's wordle is {CORRECT_WORD.upper()}!", True, "black")
     word_was_rect = word_was_text.get_rect(center=(WIDTH/2, 650))
     SCREEN.blit(word_was_text, word_was_rect)
     SCREEN.blit(play_again_text, play_again_rect)
