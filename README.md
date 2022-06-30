@@ -3,8 +3,13 @@
 
 Playing Wordle from https://www.nytimes.com/games/wordle/index.html on hard mode
 
-Current Goal Word "beady" caa 25062022
+Proposed Models:
 
 1. Wordle Basic RL (13k words)
 2. Wordle Hierarchical Clustering based on Levenshtein distance RL (13k words)
 3. Wordle Hierarchical Clustering based on Levenshtein distance RL (2k words)
+
+Proposed GUI:
+
+- Daily Wordle Solver GUI using PyGame
+- Model Performance GUI using Kivy
