@@ -1,6 +1,11 @@
 # Artificial-Intelligence-Project
 50.021 Artificial Intelligence Project - Wordle Solver using Reinforcement Learning
 
+## Details
+**Project Title:** Wordle AI Solver 
+
+**Description:**
+
 Playing Wordle from https://www.nytimes.com/games/wordle/index.html on hard mode
 
 Proposed Models:
@@ -13,3 +18,6 @@ Proposed GUI:
 
 - Daily Wordle Solver GUI using PyGame
 - Model Performance GUI using Kivy
+
+**Tools used:**
+1. **Python** under requirements.txt
