@@ -311,9 +311,10 @@ def run_simulations(learning_rate: int,
     print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
     print(f'Overall win rate: {(num_simulations-np.sum(guesses>6))/num_simulations*100}%')
     
-    plt.bar(epochs,guesses)
-    plt.hist(guesses)
-    plt.show()
+    # plt.bar(epochs,guesses)
+    # plt.hist(guesses)
+    # plt.show()
+    return epochs,guesses
 
 if __name__ == '__main__':
     run_simulations(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=1000, number_of_cluster=10)
