@@ -314,7 +314,7 @@ def run_simulations(learning_rate: int,
     # print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
     # print(f'Overall win rate: {(num_simulations-np.sum(guesses>6))/num_simulations*100}%')
     
-    return time_taken, average_guesses, win_rate
+    return time_taken, average_guesses, win_rate, epoch, guesses
 
     # plt.bar(epochs,guesses)
     # plt.hist(guesses)
