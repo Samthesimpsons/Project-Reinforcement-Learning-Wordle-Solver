@@ -307,19 +307,23 @@ def run_simulations(learning_rate: int,
                                                       cluster_results, 
                                                       Q_table)
         guesses[epoch] = steps
-        print(visited_words)
     tic_2 = time.time()
 
-    print(f'Time for clustering: {tic_1 - toc_1}')
-    print(f'Time for learning: {tic_2 - toc_2}')
-    print(f'Average guesses: {np.mean(guesses)}')
-    print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
-    print(f'Overall win rate: {(num_simulations-np.sum(guesses>6))/num_simulations*100}%')
+    time_taken = tic_2 - toc_1
+    average_guesses = np.mean(guesses)
+    win_rate = (num_simulations-np.sum(guesses>6))/num_simulations*100
+
+    # print(f'Time for clustering: {tic_1 - toc_1}')
+    # print(f'Time for learning: {tic_2 - toc_2}')
+    # print(f'Average guesses: {np.mean(guesses)}')
+    # print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
+    # print(f'Overall win rate: {(num_simulations-np.sum(guesses>6))/num_simulations*100}%')
     
+    return time_taken, average_guesses, win_rate, epoch, guesses
+
     # plt.bar(epochs,guesses)
     # plt.hist(guesses)
     # plt.show()
-    return epochs,guesses
 
 if __name__ == '__main__':
     run_simulations(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=1000, number_of_cluster=10)

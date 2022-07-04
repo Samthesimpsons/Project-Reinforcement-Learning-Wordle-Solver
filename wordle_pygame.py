@@ -157,6 +157,7 @@ class eval():
         # Return filtered corpus
         return corpus
 
+# TODO: Add the Q-table values from our wordld_cluster_2 final simulation once optimal hyperparameters are found
 def reinforcement_learning(learning_rate: int,
                            exploration_rate: int, 
                            shrinkage_factor: int, 
