@@ -209,17 +209,22 @@ def run_simulations(learning_rate: int,
     for epoch in range(num_simulations):
         steps, visited_words = reinforcement_learning(learning_rate, exploration_rate, shrinkage_factor)
         guesses[epoch] = steps
-        print(visited_words)
     tic = time.time()
 
-    print(f'Time taken: {tic - toc}')
-    print(f'Average guesses: {np.mean(guesses)}')
-    print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
-    print(f'Overall win rate: {(num_simulations-np.sum(guesses>6))/num_simulations*100}%')
+    time_taken = tic - toc
+    average_guesses = np.mean(guesses)
+    win_rate = (num_simulations-np.sum(guesses>6))/num_simulations*100
     
-    plt.bar(epochs,guesses)
-    plt.hist(guesses)
-    plt.show()
+    # print(f'Time taken: {tic - toc}')
+    # print(f'Average guesses: {np.mean(guesses)}')
+    # print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
+    # print(f'Overall win rate: {(num_simulations-np.sum(guesses>6))/num_simulations*100}%')
+        
+    return time_taken, average_guesses, win_rate
+
+    # plt.bar(epochs,guesses)
+    # plt.hist(guesses)
+    # plt.show()
 
 if __name__ == '__main__':
-    run_simulations(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=100)
+    run_simulations(learning_rate=0.9, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=100)
