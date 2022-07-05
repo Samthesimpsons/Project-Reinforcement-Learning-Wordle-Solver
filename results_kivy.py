@@ -13,7 +13,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.checkbox import CheckBox
 from kivy.core.window import Window
 from kivy.uix.slider import Slider
-from wordle_cluster_2 import run_simulations as rl_cluster_2
+from wordle_cluster_modified import run_simulations as rl_cluster_2
 from wordle_cluster import run_simulations as rl_cluster_1
 from wordle_base import run_simulations as rl_base
 from datetime import date
