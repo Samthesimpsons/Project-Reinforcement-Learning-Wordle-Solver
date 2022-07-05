@@ -61,4 +61,16 @@ def run_cpu_tasks_in_parallel(tasks):
         running_task.join()
 
 if __name__=='__main__':
-    run_cpu_tasks_in_parallel([func_1(),func_2(),func_3()])
+    # run_cpu_tasks_in_parallel([func_1(),func_2(),func_3()])
+
+    df_1 = pd.read_csv('grid_search_results/results_base.csv')
+    df_2 = pd.read_csv('grid_search_results/results_cluster.csv')
+    df_3 = pd.read_csv('grid_search_results/results_cluster_2.csv')
+
+    df_1 = df_1.sort_values(by=['win_rate', 'average_guesses', 'time_taken'], ascending=[False, True, True])
+    df_2 = df_2.sort_values(by=['win_rate', 'average_guesses', 'time_taken'], ascending=[False, True, True])
+    df_3 = df_3.sort_values(by=['win_rate', 'average_guesses', 'time_taken'], ascending=[False, True, True])
+
+    print(df_1.iloc[0])
+    print(df_2.iloc[0])
+    print(df_3.iloc[0])
