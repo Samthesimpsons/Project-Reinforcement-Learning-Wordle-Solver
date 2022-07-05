@@ -9,7 +9,6 @@ exploration_rates = [0.5, 0.6, 0.7, 0.8, 0.9]
 shrinkage_factors = [0.5, 0.6, 0.7, 0.8, 0.9]
 num_of_clusters = [6, 7, 8, 9, 10]
 
-
 def func_1():
     df_1 = pd.DataFrame(columns=['learning_rate', 'exploration_rate', 'shrinkage_factor', 'time_taken', 'average_guesses', 'win_rate'])
 
@@ -21,7 +20,8 @@ def func_1():
                 df_1.loc[len(df_1)] = [alpha, epsilon, gamma, time_taken, average_guesses, win_rate]
                 
     df_1.to_csv('grid_search_results/results_base.csv', index=False)
-    df_1.loc[df_1['win_rate'].idxmax()]
+    df_1 = df_1.sort_values(by=['win_rate', 'average_guesses', 'time_taken'], ascending=[False, True, True])
+    print(df_1.iloc[0])
 
 def func_2():
     df_2 = pd.DataFrame(columns=['learning_rate', 'exploration_rate', 'shrinkage_factor', 'num_of_clusters', 'time_taken', 'average_guesses', 'win_rate'])
@@ -35,7 +35,8 @@ def func_2():
                     df_2.loc[len(df_2)] = [alpha, epsilon, gamma, num_clusters, time_taken, average_guesses, win_rate]
 
     df_2.to_csv('grid_search_results/results_cluster.csv', index=False)
-    df_2.loc[df_2['win_rate'].idxmax()]
+    df_2 = df_2.sort_values(by=['win_rate', 'average_guesses', 'time_taken'], ascending=[False, True, True])
+    print(df_2.iloc[0])
 
 def func_3():
     df_3 = pd.DataFrame(columns=['learning_rate', 'exploration_rate', 'shrinkage_factor', 'num_of_clusters', 'time_taken', 'average_guesses', 'win_rate'])
@@ -49,7 +50,8 @@ def func_3():
                     df_3.loc[len(df_3)] = [alpha, epsilon, gamma, num_clusters, time_taken, average_guesses, win_rate]
 
     df_3.to_csv('grid_search_results/results_cluster_2.csv', index=False)
-    df_3.loc[df_3['win_rate'].idxmax()]
+    df_3 = df_3.sort_values(by=['win_rate', 'average_guesses', 'time_taken'], ascending=[False, True, True])
+    print(df_3.iloc[0])
 
 def run_cpu_tasks_in_parallel(tasks):
     running_tasks = [Process(target=task) for task in tasks]
@@ -58,5 +60,5 @@ def run_cpu_tasks_in_parallel(tasks):
     for running_task in running_tasks:
         running_task.join()
 
-if __name__ == '__main__':
+if __name__=='__main__':
     run_cpu_tasks_in_parallel([func_1(),func_2(),func_3()])
