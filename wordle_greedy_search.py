@@ -1,11 +1,13 @@
-# References:
-# https://github.com/Nk-Kyle/Wordle (this one)
-# https://www.mattefay.com/wordle
-# https://towardsdatascience.com/automatic-wordle-solving-a305954b746e
-# https://www.linkedin.com/pulse/solving-wordle-kohsuke-kawaguchi/?trk=articles_directory
+'''References:
+https://github.com/Nk-Kyle/Wordle (this one)
+https://www.mattefay.com/wordle
+https://towardsdatascience.com/automatic-wordle-solving-a305954b746e
+https://www.linkedin.com/pulse/solving-wordle-kohsuke-kawaguchi/?trk=articles_directory'''
 
 import string
 import random
+import time
+import numpy as np
 
 #Edited function from interface.py
 def evalGuess(guess, target):
@@ -71,7 +73,7 @@ def calcWordScorebyPosition(wordlist):
 #Get words from wordlist
 def getWords():
     words = []
-    with open('wordlist.txt', 'r') as f:
+    with open('goal_words.txt', 'r') as f:
         for lines in f:
             words.append(lines.strip().upper())
     return words
@@ -92,7 +94,6 @@ def buildTree(wordlist):
 
 
 ####################################################################################################
-
 
 #Decrease words from wordscores given information green (correct place)
 def solveGreen(wordscores, guessWord, toEvaluate, guessResult):
@@ -159,7 +160,6 @@ def solveTree(wordscores,guessWord,tree, guessResult):
 
 ####################################################################################################
 
-
 #Edited function from interface.py
 def printGuess(guess, target):
     res = evalGuess(guess, target)
@@ -184,9 +184,13 @@ def checkGuess(evaluations):
             return False
     return True
 
-if __name__ == '__main__':
-    win = 0
-    for i in range(1000):
+####################################################################################################
+
+def run_simulations(num_simulations:int):
+    toc = time.time()
+    guesses = np.zeros(num_simulations)
+
+    for epoch in range(num_simulations):
         attempt = 1
         words = getWords()
 
@@ -197,15 +201,12 @@ if __name__ == '__main__':
 
         '''Get a random word to use as a target to guess'''
         targetWord = getRandomTarget(list(wordScore))
-        # targetWord = 'SHAKE'
-        # printGuess(targetWord,'-----')
 
         '''Preprocess'''
         toEvaluate = [string.ascii_uppercase for _ in range(5)]
 
         '''Start guessing'''
-        # guess = list(wordScore)[0]
-        guess = "ROATE"
+        guess = "CRANE"
         printGuess(guess,targetWord)
         evaluation = evalGuess(guess,targetWord)
         while(not(checkGuess(evaluation))):
@@ -216,7 +217,20 @@ if __name__ == '__main__':
             attempt+=1
         print("*************************")
         print()
-        if attempt <= 6:
-            win+=1
-    # print(f"succeed count: {win}")
-    print(f"Success rate: {win/10}%")
+
+        guesses[epoch] = attempt
+    tic = time.time()
+
+    time_taken = tic - toc
+    average_guesses = np.mean(guesses)
+    win_rate = (num_simulations-np.sum(guesses>6))/num_simulations*100
+
+    print(f'Time taken: {tic - toc}')
+    print(f'Average guesses: {np.mean(guesses)}')
+    print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
+    print(f'Overall win rate: {(num_simulations-np.sum(guesses>6))/num_simulations*100}%')
+
+    return time_taken, average_guesses, win_rate, guesses
+
+if __name__ == '__main__':
+    run_simulations(1000)

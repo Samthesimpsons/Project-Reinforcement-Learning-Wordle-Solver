@@ -17,7 +17,7 @@ def func_1():
         for j, epsilon in enumerate(exploration_rates):
             for k, gamma in enumerate(shrinkage_factors):
                 print(f'Running epoch {i}, {j}, {k}')
-                time_taken, average_guesses, win_rate, epoch, guesses = rl_base(learning_rate=alpha, exploration_rate=epsilon, shrinkage_factor=gamma, num_simulations=100)
+                time_taken, average_guesses, win_rate, guesses = rl_base(learning_rate=alpha, exploration_rate=epsilon, shrinkage_factor=gamma, num_simulations=100)
                 df_1.loc[len(df_1)] = [alpha, epsilon, gamma, time_taken, average_guesses, win_rate]
                 
     df_1.to_csv('grid_search_results/results_base.csv', index=False)
@@ -31,7 +31,7 @@ def func_2():
             for k, gamma in enumerate(shrinkage_factors):
                 for l, num_clusters in enumerate(num_of_clusters):
                     print(f'Running epoch {i}, {j}, {k}, {l}')
-                    time_taken, average_guesses, win_rate, epoch, guesses = rl_cluster(learning_rate=alpha, exploration_rate=epsilon, shrinkage_factor=gamma, number_of_cluster=num_clusters, num_simulations=100)
+                    time_taken, average_guesses, win_rate, guesses = rl_cluster(learning_rate=alpha, exploration_rate=epsilon, shrinkage_factor=gamma, number_of_cluster=num_clusters, num_simulations=100)
                     df_2.loc[len(df_2)] = [alpha, epsilon, gamma, num_clusters, time_taken, average_guesses, win_rate]
 
     df_2.to_csv('grid_search_results/results_cluster.csv', index=False)
@@ -45,7 +45,7 @@ def func_3():
             for k, gamma in enumerate(shrinkage_factors):
                 for l,num_clusters in enumerate(num_of_clusters):
                     print(f'Running epoch {i}, {j}, {k}, {l}')
-                    time_taken, average_guesses, win_rate, epoch, guesses = rl_cluster_2(learning_rate=alpha, exploration_rate=epsilon, shrinkage_factor=gamma, number_of_cluster=num_clusters, num_simulations=100)
+                    time_taken, average_guesses, win_rate, guesses = rl_cluster_2(learning_rate=alpha, exploration_rate=epsilon, shrinkage_factor=gamma, number_of_cluster=num_clusters, num_simulations=100)
                     df_3.loc[len(df_3)] = [alpha, epsilon, gamma, num_clusters, time_taken, average_guesses, win_rate]
 
     df_3.to_csv('grid_search_results/results_cluster_2.csv', index=False)

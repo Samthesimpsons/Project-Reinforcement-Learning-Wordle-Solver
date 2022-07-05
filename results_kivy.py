@@ -173,11 +173,14 @@ class TestApp(App):
     def generate_graph(self,instance):
         self.fifth_row.clear_widgets()
         if self.state == 1:
-            time_taken, average_guesses, win_rate, epochs,guesses = rl_base(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims)
+            time_taken, average_guesses, win_rate,guesses = rl_base(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims)
+            epochs = np.arange(self.num_sims)
         elif self.state == 2:
-            time_taken, average_guesses, win_rate, epochs,guesses = rl_cluster_1(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
+            time_taken, average_guesses, win_rate,guesses = rl_cluster_1(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
+            epochs = np.arange(self.num_sims)
         elif self.state == 3:
-            time_taken, average_guesses, win_rate, epochs,guesses = rl_cluster_2(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
+            time_taken, average_guesses, win_rate,guesses = rl_cluster_2(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
+            epochs = np.arange(self.num_sims)
         else:
             pass
         plt.bar(epochs,guesses)
