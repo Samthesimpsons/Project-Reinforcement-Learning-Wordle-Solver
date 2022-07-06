@@ -1,7 +1,7 @@
 from multiprocessing import Process
-from wordle_base import run_simulations as rl_base
-from wordle_cluster import run_simulations as rl_cluster
-from wordle_cluster_modified import run_simulations as rl_cluster_2
+from wordle_base_15k import run_simulations as rl_base
+from wordle_cluster_15k import run_simulations as rl_cluster
+from wordle_cluster_2k import run_simulations as rl_cluster_2
 import pandas as pd
 
 learning_rates = [0.1, 0.01, 0.001]    

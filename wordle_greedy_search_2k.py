@@ -225,10 +225,10 @@ def run_simulations(num_simulations:int):
     average_guesses = np.mean(guesses)
     win_rate = (num_simulations-np.sum(guesses>6))/num_simulations*100
 
-    print(f'Time taken: {time_taken}')
-    print(f'Average guesses: {average_guesses}')
-    print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
-    print(f'Overall win rate: {win_rate}%')
+    # print(f'Time taken: {time_taken}')
+    # print(f'Average guesses: {average_guesses}')
+    # print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
+    # print(f'Overall win rate: {win_rate}%')
 
     return time_taken, average_guesses, win_rate, guesses
 

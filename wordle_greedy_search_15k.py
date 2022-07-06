@@ -217,16 +217,16 @@ def run_simulations(num_simulations:int):
 
         '''Start guessing'''
         guess = "CRANE"
-        printGuess(guess,targetWord)
+        # printGuess(guess,targetWord)
         evaluation = evalGuess(guess,targetWord)
         while(not(checkGuess(evaluation))):
             wordScore13k,toEvaluate = solveWithAll(wordscore13k, guess, toEvaluate, evaluation)
             guess = list(wordScore13k)[0]
             evaluation = evalGuess(guess,targetWord)
-            printGuess(guess,targetWord)
+            # printGuess(guess,targetWord)
             attempt+=1
-        print("*************************")
-        print()
+        # print("*************************")
+        # print()
 
         guesses[epoch] = attempt
     tic = time.time()
@@ -235,10 +235,10 @@ def run_simulations(num_simulations:int):
     average_guesses = np.mean(guesses)
     win_rate = (num_simulations-np.sum(guesses>6))/num_simulations*100
 
-    print(f'Time taken: {time_taken}')
-    print(f'Average guesses: {average_guesses}')
-    print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
-    print(f'Overall win rate: {win_rate}%')
+    # print(f'Time taken: {time_taken}')
+    # print(f'Average guesses: {average_guesses}')
+    # print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
+    # print(f'Overall win rate: {win_rate}%')
 
     return time_taken, average_guesses, win_rate, guesses
 
