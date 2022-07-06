@@ -207,16 +207,16 @@ def run_simulations(num_simulations:int):
 
         '''Start guessing'''
         guess = "CRANE"
-        printGuess(guess,targetWord)
+        # printGuess(guess,targetWord)
         evaluation = evalGuess(guess,targetWord)
         while(not(checkGuess(evaluation))):
             wordScore,toEvaluate = solveWithAll(wordScore, guess, toEvaluate, evaluation)
             guess = list(wordScore)[0]
             evaluation = evalGuess(guess,targetWord)
-            printGuess(guess,targetWord)
+            # printGuess(guess,targetWord)
             attempt+=1
-        print("*************************")
-        print()
+        # print("*************************")
+        # print()
 
         guesses[epoch] = attempt
     tic = time.time()
