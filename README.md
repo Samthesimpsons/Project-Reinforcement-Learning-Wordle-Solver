@@ -10,12 +10,14 @@ Playing Wordle from https://www.nytimes.com/games/wordle/index.html on hard mode
 
 Proposed Models:
 
-1. Wordle Basic RL (13k words)
-2. Wordle Hierarchical Clustering based on Levenshtein distance RL (13k words)
+1. Wordle Basic RL (15k words)
+2. Wordle Hierarchical Clustering based on Levenshtein distance RL (15k words)
 3. Wordle Hierarchical Clustering based on Levenshtein distance RL (2k words)
-4. Search Algorithm (13k words)
+4. Search Algorithm (15k words)
 5. Search Algorithm (2k words)
 
+Evaluate the speed and accuracy between using 15k and 2k words;
+Similar evaluate the speed and accuracy between using RL and Search.
 
 Proposed GUI:
 
