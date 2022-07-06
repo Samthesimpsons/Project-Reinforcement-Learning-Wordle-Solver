@@ -71,7 +71,7 @@ def calcWordScorebyPosition(wordlist):
     return dict(wordScore)
 
 #Get words from wordlist
-def getWords():
+def getGoalWords():
     words = []
     with open('goal_words.txt', 'r') as f:
         for lines in f:
@@ -189,10 +189,10 @@ def checkGuess(evaluations):
 def run_simulations(num_simulations:int):
     toc = time.time()
     guesses = np.zeros(num_simulations)
+    words = getGoalWords()
 
     for epoch in range(num_simulations):
         attempt = 1
-        words = getWords()
 
         ''' Line 8 and 9 interchangable for scoring words with different methods'''
         wordScore = calcWordScorebyOccurence(words)
@@ -225,10 +225,10 @@ def run_simulations(num_simulations:int):
     average_guesses = np.mean(guesses)
     win_rate = (num_simulations-np.sum(guesses>6))/num_simulations*100
 
-    print(f'Time taken: {tic - toc}')
-    print(f'Average guesses: {np.mean(guesses)}')
+    print(f'Time taken: {time_taken}')
+    print(f'Average guesses: {average_guesses}')
     print(f'Total game losses out of {num_simulations}: {np.sum(guesses>6)}')
-    print(f'Overall win rate: {(num_simulations-np.sum(guesses>6))/num_simulations*100}%')
+    print(f'Overall win rate: {win_rate}%')
 
     return time_taken, average_guesses, win_rate, guesses
 
