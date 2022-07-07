@@ -180,6 +180,7 @@ class MainApp(App):
             epochs = np.arange(self.num_sims)
         else:
             pass
+
         plt.bar(epochs,guesses,alpha=0.5)
         plt.title("Epochs vs Guesses")
         plt.xlabel("Epochs")
