@@ -79,7 +79,7 @@ class MainApp(App):
 
         # Cell 0,1 : exploration rate
         box2 = BoxLayout(orientation="horizontal")
-        self.exploration_rate = 0.1
+        self.exploration_rate = 0.9
         self.exploration_rate_text = Label(text=f'exploration_rate : {self.exploration_rate}')
         box2.add_widget(self.exploration_rate_text)
         self.exploration_rate_slider = Slider(min=0,max=1,value=0.9,step=0.01)
