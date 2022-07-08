@@ -39,6 +39,16 @@ class MainApp(App):
             5 : "Greedy Search 15k"
         }
         self.max_time = 0
+        # best parameters from grid search
+        # [learning_rate, exploration_rate, shrinkage_factor, num_clusters]
+        self.best_params = {
+            1 : [0.1, 0.8, 0.8, 10],
+            2 : [0.1, 0.9, 0.5, 6],
+            3 : [0.001, 0.9, 0.9, 9],
+            4 : [0.9, 0.9, 0.9, 10],
+            5 : [0.9, 0.9, 0.9, 10]
+        }
+
 
         # main widget (root)
         # self.root = GridLayout(cols=4, rows=3)
@@ -150,8 +160,28 @@ class MainApp(App):
             self.state = 0
         else:
             self.state = instance.id
-        # print(instance.state)
-        print(self.state)
+            # print(self.state)
+            
+            # learning_rate defaults
+            self.learning_rate = self.best_params[self.state][0]
+            self.learning_rate_text.text = f"learning_rate : {round(self.learning_rate,2)}"
+            self.learning_rate_slider.value = self.learning_rate
+            
+            # exploration_rate defaults
+            self.exploration_rate = self.best_params[self.state][1]
+            self.exploration_rate_text.text = f"learning_rate : {round(self.exploration_rate,2)}"
+            self.exploration_rate_slider.value = self.exploration_rate
+
+            # shrinkage_factor defaults
+            self.shrinkage_factor = self.best_params[self.state][2]
+            self.shrinkage_factor_text.text = f"learning_rate : {round(self.shrinkage_factor,2)}"
+            self.shrinkage_factor_slider.value = self.shrinkage_factor
+
+            # num_clusters defaults
+            self.num_clusters = self.best_params[self.state][3]
+            self.num_clusters_text.text = f"learning_rate : {round(self.num_clusters,2)}"
+            self.num_clusters_slider.value = self.num_clusters
+
 
     def update_learning_rate_value(self,instance,value):
         self.learning_rate_text.text = f"learning_rate : {round(value,2)}"
