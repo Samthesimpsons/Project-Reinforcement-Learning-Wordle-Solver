@@ -38,6 +38,7 @@ class MainApp(App):
             4 : "Greedy Search 2k",
             5 : "Greedy Search 15k"
         }
+        self.max_time = 0
 
         # main widget (root)
         # self.root = GridLayout(cols=4, rows=3)
@@ -207,7 +208,6 @@ class MainApp(App):
                 epochs = np.arange(self.num_sims)
             else:
                 pass
-            ## TODO: Minshuen to add legend 
 
             plt.figure(0) # First plot of epochs vs guesses
             plt.bar(epochs,guesses,alpha=0.5, label=self.state_dict[self.state])
@@ -224,7 +224,9 @@ class MainApp(App):
             fig1 = plt.figure(1)
             #define max scale range for each axes
             max_time = time_taken + 1.0
-            category_range = [(0,max_time),(1,15),(0,100)]
+            if max_time > self.max_time:
+                self.max_time = max_time
+            category_range = [(0,self.max_time),(1,15),(0,100)]
             radar = ComplexRadar(fig1,categories,category_range)
 
             metrics = [time_taken,average_guesses,win_rate]
