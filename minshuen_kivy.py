@@ -31,7 +31,13 @@ class MainApp(App):
                                     "Greedy Search 2k": [], 
                                     "Greedy Search 15k": []
                                     }
-
+        self.state_dict = {
+            1 : "RL Base",
+            2 : "RL Cluster 2k",
+            3 : "RL Cluster 15k",
+            4 : "Greedy Search 2k",
+            5 : "Greedy Search 15k"
+        }
 
         # main widget (root)
         # self.root = GridLayout(cols=4, rows=3)
@@ -172,63 +178,70 @@ class MainApp(App):
         current_model = None
         popup_content = BoxLayout(orientation = "vertical")
 
-        # graphs
-        # self.fifth_row.clear_widgets()
-        if self.state == 1:
-            current_model = "RL Base"
-            time_taken, average_guesses, win_rate,guesses = rl_base(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims)
-            epochs = np.arange(self.num_sims)
-        elif self.state == 2:
-            current_model = "RL Cluster 2k"
-            time_taken, average_guesses, win_rate,guesses = rl_cluster_1(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
-            epochs = np.arange(self.num_sims)
-        elif self.state == 3:
-            current_model = "RL Cluster 15k"
-            time_taken, average_guesses, win_rate,guesses = rl_cluster_2(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
-            epochs = np.arange(self.num_sims)
-        elif self.state == 4:
-            current_model = "Greedy Search 2k"
-            time_taken, average_guesses, win_rate,guesses = rl_greedy_1(self.num_sims)
-            epochs = np.arange(self.num_sims)
-        elif self.state == 5:
-            current_model = "Greedy Search 15k"
-            time_taken, average_guesses, win_rate,guesses = rl_greedy_2(self.num_sims)
-            epochs = np.arange(self.num_sims)
+        if self.state == 0:
+            warning_text = Label(text="No models selected")
+            popup_content.add_widget(warning_text)
+
         else:
-            pass
-        ## TODO: Minshuen to add legend 
+            # graphs
+            popup_content.clear_widgets()
+            if self.state == 1:
+                current_model = "RL Base"
+                time_taken, average_guesses, win_rate,guesses = rl_base(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims)
+                epochs = np.arange(self.num_sims)
+            elif self.state == 2:
+                current_model = "RL Cluster 2k"
+                time_taken, average_guesses, win_rate,guesses = rl_cluster_1(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
+                epochs = np.arange(self.num_sims)
+            elif self.state == 3:
+                current_model = "RL Cluster 15k"
+                time_taken, average_guesses, win_rate,guesses = rl_cluster_2(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
+                epochs = np.arange(self.num_sims)
+            elif self.state == 4:
+                current_model = "Greedy Search 2k"
+                time_taken, average_guesses, win_rate,guesses = rl_greedy_1(self.num_sims)
+                epochs = np.arange(self.num_sims)
+            elif self.state == 5:
+                current_model = "Greedy Search 15k"
+                time_taken, average_guesses, win_rate,guesses = rl_greedy_2(self.num_sims)
+                epochs = np.arange(self.num_sims)
+            else:
+                pass
+            ## TODO: Minshuen to add legend 
 
-        plt.figure(0) # First plot of epochs vs guesses
-        plt.bar(epochs,guesses,alpha=0.5)
-        plt.title("Epochs vs Guesses")
-        plt.xlabel("Epochs")
-        plt.ylabel("Guesses")
-        popup_content.add_widget(FigureCanvasKivyAgg(plt.gcf()))
+            plt.figure(0) # First plot of epochs vs guesses
+            plt.bar(epochs,guesses,alpha=0.5, label=self.state_dict[self.state])
+            # plt.legend(bbox_to_anchor=(1.04,0.5), loc="upper left")
+            plt.legend(loc="upper right")
+            plt.title("Epochs vs Guesses")
+            plt.xlabel("Epochs")
+            plt.ylabel("Guesses")
+            popup_content.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
-        
-        # Used to create a radar chart for all other metrics
-        # https://towardsdatascience.com/how-to-make-stunning-radar-charts-with-python-implemented-in-matplotlib-and-plotly-91e21801d8ca
-        fig1 = plt.figure(1)
-        #define max scale range for each axes
-        max_time = time_taken + 1.0
-        category_range = [(0,max_time),(1,15),(0,100)]
-        radar = ComplexRadar(fig1,categories,category_range)
+            
+            # Used to create a radar chart for all other metrics
+            # https://towardsdatascience.com/how-to-make-stunning-radar-charts-with-python-implemented-in-matplotlib-and-plotly-91e21801d8ca
+            fig1 = plt.figure(1)
+            #define max scale range for each axes
+            max_time = time_taken + 1.0
+            category_range = [(0,max_time),(1,15),(0,100)]
+            radar = ComplexRadar(fig1,categories,category_range)
 
-        metrics = [time_taken,average_guesses,win_rate]
-        
-        # To plot multiple radar charts 
-        for key in self.currently_displayed.keys():
-            if key == current_model:
-                self.currently_displayed[current_model] = metrics
-                if self.currently_displayed[current_model] == []:
+            metrics = [time_taken,average_guesses,win_rate]
+            
+            # To plot multiple radar charts 
+            for key in self.currently_displayed.keys():
+                if key == current_model:
                     self.currently_displayed[current_model] = metrics
-                    radar.plot(self.currently_displayed[current_model]) # this plot will add multiple plots to the graph
-                    radar.fill(metrics,alpha=0.2)
-            if self.currently_displayed[key] != []:
-                radar.plot(self.currently_displayed[key])
-                radar.fill(self.currently_displayed[key],alpha=0.2)
-            print(key,self.currently_displayed[key])
-        popup_content.add_widget(FigureCanvasKivyAgg(plt.gcf()))
+                    if self.currently_displayed[current_model] == []:
+                        self.currently_displayed[current_model] = metrics
+                        radar.plot(self.currently_displayed[current_model]) # this plot will add multiple plots to the graph
+                        radar.fill(metrics,alpha=0.2)
+                if self.currently_displayed[key] != []:
+                    radar.plot(self.currently_displayed[key])
+                    radar.fill(self.currently_displayed[key],alpha=0.2)
+                print(key,self.currently_displayed[key])
+            popup_content.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
 
         close_btn = Button(text='Close me!', size_hint=(0.3,0.2))
