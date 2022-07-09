@@ -177,8 +177,8 @@ def reinforcement_learning(learning_rate: int,
         return 1, ['CRANE']
     
     curr_corpus = words.copy()
-    q_table = np.zeros((number_of_cluster, number_of_cluster))
-
+    q_table = np.load('Q_table.npy')
+    
     # initialize distance matrix (similarities) and the clustering results
     clust = Clustering(number_of_cluster)
     distance_matrix = clust.get_dist_matrix(words)

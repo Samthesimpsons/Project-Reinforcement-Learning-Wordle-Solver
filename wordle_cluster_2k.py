@@ -320,5 +320,37 @@ def run_simulations(learning_rate: int,
     # plt.hist(guesses)
     # plt.show()
 
+def run_simulation_pygame(learning_rate: int,
+                          exploration_rate: int,
+                          shrinkage_factor: int,
+                          num_simulations:int,
+                          number_of_cluster: int):
+
+    epochs = np.arange(num_simulations)
+    guesses = np.zeros(num_simulations)
+    
+    clust = Clustering(number_of_cluster)
+    distance_matrix = clust.get_dist_matrix(words)
+    cluster_results = clust.get_clusters(words)
+    Q_table = np.load('Q_table.npy')
+
+    for epoch in tqdm(range(num_simulations)):
+        steps, visited_words = reinforcement_learning(learning_rate, 
+                                                      exploration_rate, 
+                                                      shrinkage_factor, 
+                                                      number_of_cluster,
+                                                      distance_matrix, 
+                                                      cluster_results, 
+                                                      Q_table)
+        guesses[epoch] = steps
+        average_guesses = np.mean(guesses)
+
+    win_rate = (num_simulations-np.sum(guesses>6))/num_simulations*100
+    
+    return average_guesses, win_rate, guesses, Q_table
+
 if __name__ == '__main__':
-    run_simulations(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=1000, number_of_cluster=10)
+    # average_guesses, win_rate, guesses, Q_table = run_simulation_pygame(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=100000, number_of_cluster=9)
+    # np.save('Q_table.npy', Q_table)
+    
+    run_simulations(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=1000, number_of_cluster=9)
