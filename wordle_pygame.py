@@ -434,7 +434,7 @@ def reset():
     current_guess = []
     current_guess_string = ""
     game_result = ""
-    visited_words = reinforcement_learning(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=10)
+    visited_words = reinforcement_learning(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=9)
     presses = 0
     letters = []
     for word in visited_words:
