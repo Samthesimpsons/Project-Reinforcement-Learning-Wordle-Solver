@@ -5,7 +5,6 @@ import numpy as np
 from tqdm import tqdm
 from leven import levenshtein
 from sklearn.cluster import AgglomerativeClustering
-import matplotlib.pyplot as plt
 
 ''' List of feasible words that our reinforcement learning model will be trained on, 
 5-letter words from Wordle. Source: https://www.nytimes.com/games/wordle/index.html
@@ -270,8 +269,7 @@ def reinforcement_learning(learning_rate: int,
     visited_words.append(goal_word)
     return steps, visited_words
 
-
-''' Run n simulations function where each simulation is one run of the game'''
+''' Define a function where one simulation/run is one run of the wordle game'''
 
 def run_simulations(learning_rate: int,
                     exploration_rate: int,
@@ -316,9 +314,7 @@ def run_simulations(learning_rate: int,
     
     return time_taken, average_guesses, win_rate, guesses
 
-    # plt.bar(epochs,guesses)
-    # plt.hist(guesses)
-    # plt.show()
+''' Function to train and get the Q table for the wordle pygame'''
 
 def run_simulation_pygame(learning_rate: int,
                           exploration_rate: int,
@@ -342,7 +338,7 @@ def run_simulation_pygame(learning_rate: int,
     return Q_table
 
 if __name__ == '__main__':
-    # Get the Q-table for our py-game implementation
+    ## Get the Q-table for our py-game implementation
     # Q_table = run_simulation_pygame(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=100000, number_of_cluster=9)
     # np.save('Q_table.npy', Q_table)
     

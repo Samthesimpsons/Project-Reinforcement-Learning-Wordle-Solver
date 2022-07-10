@@ -99,9 +99,6 @@ def buildTree(wordlist):
                 tree[word][eval].append(referWord)
     return tree
 
-
-####################################################################################################
-
 #Decrease words from wordscores given information green (correct place)
 def solveGreen(wordscores, guessWord, toEvaluate, guessResult):
     wordscores.pop(guessWord,None)
@@ -164,9 +161,6 @@ def solveTree(wordscores,guessWord,tree, guessResult):
             wordscores.pop(word,None)
     return wordscores
 
-
-####################################################################################################
-
 #Edited function from interface.py
 def printGuess(guess, target):
     res = evalGuess(guess, target)
@@ -190,8 +184,6 @@ def checkGuess(evaluations):
         if (eval != "g"):
             return False
     return True
-
-####################################################################################################
 
 def run_simulations(num_simulations:int):
     toc = time.time()
