@@ -73,7 +73,14 @@ def calcWordScorebyPosition(wordlist):
 #Get words from wordlist
 def getGoalWords():
     words = []
-    with open('goal_words.txt', 'r') as f:
+    with open('models/goal_words.txt', 'r') as f:
+        for lines in f:
+            words.append(lines.strip().upper())
+    return words
+
+def getGuessWords():
+    words = []
+    with open('models/accepted_words.txt', 'r') as f:
         for lines in f:
             words.append(lines.strip().upper())
     return words
@@ -189,18 +196,21 @@ def checkGuess(evaluations):
 def run_simulations(num_simulations:int):
     toc = time.time()
     guesses = np.zeros(num_simulations)
-    words = getGoalWords()
+    goalwords = getGoalWords()
+    guesswords = getGuessWords()
 
     for epoch in range(num_simulations):
         attempt = 1
 
+
         ''' Line 8 and 9 interchangable for scoring words with different methods'''
-        wordScore = calcWordScorebyOccurence(words)
+        wordScore2k = calcWordScorebyOccurence(goalwords)
+        wordscore13k = calcWordScorebyOccurence(guesswords)
         # print(wordScore)
         # wordScore = calcWordScorebyPosition(words)
 
         '''Get a random word to use as a target to guess'''
-        targetWord = getRandomTarget(list(wordScore))
+        targetWord = getRandomTarget(list(wordScore2k))
 
         '''Preprocess'''
         toEvaluate = [string.ascii_uppercase for _ in range(5)]
@@ -210,8 +220,8 @@ def run_simulations(num_simulations:int):
         # printGuess(guess,targetWord)
         evaluation = evalGuess(guess,targetWord)
         while(not(checkGuess(evaluation))):
-            wordScore,toEvaluate = solveWithAll(wordScore, guess, toEvaluate, evaluation)
-            guess = list(wordScore)[0]
+            wordScore13k,toEvaluate = solveWithAll(wordscore13k, guess, toEvaluate, evaluation)
+            guess = list(wordScore13k)[0]
             evaluation = evalGuess(guess,targetWord)
             # printGuess(guess,targetWord)
             attempt+=1

@@ -10,7 +10,7 @@ from sklearn.cluster import AgglomerativeClustering
 '''Our AI wordle algorithm'''
 
 words = []
-with open('goal_words.txt', 'r') as file:
+with open('models/goal_words.txt', 'r') as file:
     for word in file:
         words.append(word.strip('\n').upper())
 
@@ -157,7 +157,6 @@ class eval():
         # Return filtered corpus
         return corpus
 
-# TODO: Add the Q-table values from our wordld_cluster_2 final simulation once optimal hyperparameters are found
 def reinforcement_learning(learning_rate: int,
                            exploration_rate: int, 
                            shrinkage_factor: int, 
@@ -177,7 +176,7 @@ def reinforcement_learning(learning_rate: int,
         return 1, ['CRANE']
     
     curr_corpus = words.copy()
-    q_table = np.load('Q_table.npy')
+    q_table = np.load('models/Q_table.npy')
     
     # initialize distance matrix (similarities) and the clustering results
     clust = Clustering(number_of_cluster)

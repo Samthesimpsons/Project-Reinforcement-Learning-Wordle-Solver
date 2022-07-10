@@ -14,7 +14,7 @@ Only using the goal words as feasible words for the reinforcement learning model
 https://www.pcmag.com/how-to/want-to-up-your-wordle-game-the-winning-word-is-right-on-the-page'''
 
 words = []
-with open('goal_words.txt', 'r') as file:
+with open('models/goal_words.txt', 'r') as file:
     for word in file:
         words.append(word.strip('\n').upper())
 
@@ -326,9 +326,6 @@ def run_simulation_pygame(learning_rate: int,
                           num_simulations:int,
                           number_of_cluster: int):
 
-    epochs = np.arange(num_simulations)
-    guesses = np.zeros(num_simulations)
-    
     clust = Clustering(number_of_cluster)
     distance_matrix = clust.get_dist_matrix(words)
     cluster_results = clust.get_clusters(words)
@@ -342,15 +339,11 @@ def run_simulation_pygame(learning_rate: int,
                                                       distance_matrix, 
                                                       cluster_results, 
                                                       Q_table)
-        guesses[epoch] = steps
-        average_guesses = np.mean(guesses)
-
-    win_rate = (num_simulations-np.sum(guesses>6))/num_simulations*100
-    
-    return average_guesses, win_rate, guesses, Q_table
+    return Q_table
 
 if __name__ == '__main__':
-    # average_guesses, win_rate, guesses, Q_table = run_simulation_pygame(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=100000, number_of_cluster=9)
+    # Get the Q-table for our py-game implementation
+    # Q_table = run_simulation_pygame(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=100000, number_of_cluster=9)
     # np.save('Q_table.npy', Q_table)
     
     run_simulations(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=1000, number_of_cluster=9)

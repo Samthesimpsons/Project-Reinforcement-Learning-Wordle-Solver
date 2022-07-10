@@ -13,9 +13,9 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.checkbox import CheckBox
 from kivy.core.window import Window
 from kivy.uix.slider import Slider
-from wordle_cluster_2k import run_simulations as rl_cluster_2
-from wordle_cluster_15k import run_simulations as rl_cluster_1
-from wordle_base_15k import run_simulations as rl_base
+from models.wordle_cluster_2k import run_simulations as rl_cluster_2
+from models.wordle_cluster_15k import run_simulations as rl_cluster_1
+from models.wordle_base_15k import run_simulations as rl_base
 from datetime import date
 import numpy as np
 import matplotlib.pyplot as plt

@@ -1,13 +1,16 @@
 from multiprocessing import Process
-from wordle_base_15k import run_simulations as rl_base
-from wordle_cluster_15k import run_simulations as rl_cluster
-from wordle_cluster_2k import run_simulations as rl_cluster_2
+from models.wordle_base_15k import run_simulations as rl_base
+from models.wordle_cluster_15k import run_simulations as rl_cluster
+from models.wordle_cluster_2k import run_simulations as rl_cluster_2
 import pandas as pd
 
 learning_rates = [0.1, 0.01, 0.001]    
 exploration_rates = [0.5, 0.6, 0.7, 0.8, 0.9]
 shrinkage_factors = [0.5, 0.6, 0.7, 0.8, 0.9]
 num_of_clusters = [6, 7, 8, 9, 10]
+
+# Set to True to rerun grid_search
+run_grid_search = False
 
 def func_1():
     df_1 = pd.DataFrame(columns=['learning_rate', 'exploration_rate', 'shrinkage_factor', 'time_taken', 'average_guesses', 'win_rate'])
@@ -61,7 +64,8 @@ def run_cpu_tasks_in_parallel(tasks):
         running_task.join()
 
 if __name__=='__main__':
-    # run_cpu_tasks_in_parallel([func_1(),func_2(),func_3()])
+    if run_grid_search == True:
+        run_cpu_tasks_in_parallel([func_1, func_2, func_3])
 
     df_1 = pd.read_csv('grid_search_results/results_base.csv')
     df_2 = pd.read_csv('grid_search_results/results_cluster.csv')

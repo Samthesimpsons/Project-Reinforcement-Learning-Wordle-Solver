@@ -12,12 +12,12 @@ Extracted the 12974 accepted words from the source code javascript file and then
 https://www.pcmag.com/how-to/want-to-up-your-wordle-game-the-winning-word-is-right-on-the-page'''
 
 words = []
-with open('accepted_words.txt', 'r') as file:
+with open('models/accepted_words.txt', 'r') as file:
     for word in file:
         words.append(word.strip('\n').upper())
 
 goal_words = []
-with open('goal_words.txt', 'r') as file:
+with open('models/goal_words.txt', 'r') as file:
     for word in file:
         goal_words.append(word.strip('\n').upper())
 
