@@ -7,7 +7,7 @@ from datetime import date
 from leven import levenshtein
 from sklearn.cluster import AgglomerativeClustering
 
-'''Our AI wordle algorithm'''
+'''Our AI wordle algorithm similar to model/wordle_cluster_2k.py but modified slightly.'''
 
 words = []
 with open('models/goal_words.txt', 'r') as file:
@@ -22,7 +22,6 @@ class Clustering():
     def __init__(self, number_of_clusters:int):
         self.number_of_clusters = number_of_clusters
 
-    # Calculate the distance matrix based on the levenshtein distance measure
     def get_dist_matrix(self, corpus:list):
         n = len(corpus)
         distance_matrix = np.zeros((n, n))
@@ -32,7 +31,6 @@ class Clustering():
                 distance_matrix[j, i] = distance_matrix[i, j]
         return distance_matrix
 
-    # Get the indexes of the words with the chosen cluster number
     def get_indexes_of_cluster(self, cluster_number:int, clusters:list):
         indexes = []
         for index, number in enumerate(clusters):
@@ -40,15 +38,12 @@ class Clustering():
                 indexes.append(index)
         return indexes
 
-    # Pick a random word from the chosen cluster
     def get_chosen_word(self, indexes:list, corpus:list):
         chosen_word_index = random.choice(indexes)
         return corpus[chosen_word_index]
 
-    # Get the clusters based on the levenshtein distance measure
     def get_clusters(self, corpus:list):
         distance_matrix = self.get_dist_matrix(corpus)
-        # Can do simulation analysis to test the parameters
         clusters = AgglomerativeClustering(
             n_clusters=self.number_of_clusters, 
             affinity='precomputed', 
@@ -62,7 +57,6 @@ class Wordle():
         self.goal_word = CORRECT_WORD.upper()
         self.reached_goal = False
 
-    # State is the current cluster number itself
     def get_state(self):
         return self.current_state
 
@@ -72,20 +66,14 @@ class Wordle():
     def get_goal(self):
         return self.goal_word
 
-    # Action is the next cluster number, and then the chosen word from the cluster for evaluation
     def make_action(self, action, state):
-        # scoring based on yellow, green & black letters
         current_score = eval.get_score(self.current_word, self.goal_word)
 
-        # select next word and get a new scoring
         self.current_word = action
         self.current_state = state
         new_score = eval.get_score(self.current_word, self.goal_word)
-
-        # calculate reward of previous word to new word
         reward = eval.get_reward(current_score, new_score)
 
-        # if ever the case the goal state is reached, True is returned
         if self.current_word == self.goal_word:
             return reward, True
         return reward, False
@@ -113,11 +101,10 @@ class eval():
         return reward
 
     def filter(filter_word:str, goal_word:str, corpus:list):
-        black_letters = []  # list of black letters
-        yellow_letters = {}  # key-val pair of yellow letters and their positions
-        green_letters = {}  # key-val pair of green letters and their positions
+        black_letters = []  
+        yellow_letters = {}  
+        green_letters = {}  
 
-        # Get the list or dict of black letters, yellow letters and green letters
         for i in range(5):
             if filter_word[i] != goal_word[i] and filter_word[i] not in goal_word:
                 black_letters.append(filter_word[i])
@@ -126,35 +113,29 @@ class eval():
             elif filter_word[i] != goal_word[i] and filter_word[i] in goal_word:
                 yellow_letters[filter_word[i]] = i
 
-        # Remove any words with the black letters
         if len(black_letters) != 0:
             strings_to_remove = "[{}]".format("".join(black_letters))
             corpus = [word for word in corpus if (
                 re.sub(strings_to_remove, '', word) == word or word == filter_word)]
 
-        # Keep only words with correct green position
         if len(green_letters) != 0:
             for key, value in green_letters.items():
                 corpus = [word for word in corpus if (
                     word[value] == key or word == filter_word)]
 
-        # Do not keep words with yellow letters in current position
         if len(yellow_letters) != 0:
             for key, value in yellow_letters.items():
                 corpus = [word for word in corpus if (
                     word[value] != key or word == filter_word)]
 
-        # Do not keep words without yellow letters in other positions
         if len(yellow_letters) != 0:
             for yellow_letter in yellow_letters.keys():
                 corpus = [word for word in corpus if (
                     yellow_letter in word or word == filter_word)]
 
-        # Unlike worle_base we can remove the word we filtering on, since our state-action pair is cluster-cluster and not word-word
         if filter_word in corpus:
             corpus.remove(filter_word)
 
-        # Return filtered corpus
         return corpus
 
 def reinforcement_learning(learning_rate: int,
@@ -162,28 +143,27 @@ def reinforcement_learning(learning_rate: int,
                            shrinkage_factor: int, 
                            number_of_cluster: int):
 
-    epsilon = exploration_rate  # probability of exploration
-    alpha = learning_rate  # learning rate
-    gamma = shrinkage_factor  # discounting factor
+    epsilon = exploration_rate  
+    alpha = learning_rate  
+    gamma = shrinkage_factor  
 
     wordle = Wordle()
     done = False
-    steps = 1 # Since we start off with an initial word already
+    steps = 1 
 
-    # initialize Q-table, goal word and the current corpus
     goal_word = wordle.get_goal()
     if goal_word == 'CRANE':
         return 1, ['CRANE']
     
     curr_corpus = words.copy()
+
+    # MODIFICATION here, to initialize the trained Q-table
     q_table = np.load('models/Q_table.npy')
     
-    # initialize distance matrix (similarities) and the clustering results
     clust = Clustering(number_of_cluster)
     distance_matrix = clust.get_dist_matrix(words)
     cluster_results = clust.get_clusters(words)
 
-    # initialize the first word cluster numer
     wordle.current_state = cluster_results[curr_corpus.index(
         wordle.get_curr_word())]
 
@@ -193,11 +173,9 @@ def reinforcement_learning(learning_rate: int,
         word_to_filter_on = wordle.get_curr_word()
         visited_words.append(word_to_filter_on)
 
-        # keep track of the corpus before and after filtering (cutting search space)
         prev_corpus = curr_corpus.copy()
         curr_corpus = eval.filter(word_to_filter_on, goal_word, curr_corpus)
         
-        # Similarly, reduce the search space of the distance_matrix and cluster_results
         indices_removed = []
         for i, word in enumerate(prev_corpus):
             if word not in curr_corpus:
@@ -207,38 +185,33 @@ def reinforcement_learning(learning_rate: int,
         distance_matrix = np.delete(distance_matrix, indices_removed, axis=1)
         cluster_results = np.delete(cluster_results, indices_removed, axis=0)
 
-        epsilon = epsilon / (steps ** 2) # Decaying epsilon, explore lesser as it goes on
-        if random.uniform(0, 1) < epsilon: # Explore
+        epsilon = epsilon / (steps ** 2) 
+        if random.uniform(0, 1) < epsilon: 
             list_of_states_to_explore = list(set(cluster_results))
             if len(list_of_states_to_explore) != 1:
                 if state in list_of_states_to_explore:
                     list_of_states_to_explore.remove(state)
             action_index = random.choice(list_of_states_to_explore)
 
-        else: #Exploit
-            # Q-table is very sparse in beginning, hence if the row of Q-table all similar still (0), do exploration still
+        else: 
             if np.all(q_table[state][i] == q_table[state][0] for i in range(len(curr_corpus))):
                 list_of_states_to_explore = list(set(cluster_results))
                 if len(list_of_states_to_explore) != 1:
                     if state in list_of_states_to_explore:
                         list_of_states_to_explore.remove(state)
                 action_index = random.choice(list_of_states_to_explore)
-            else: # Exploit
+            else: 
                 action_index = np.argmax(q_table[state])
 
         chosen_word = clust.get_chosen_word(clust.get_indexes_of_cluster(action_index, cluster_results), curr_corpus)
 
-        # Get reward and update Q-table
         reward, done = wordle.make_action(chosen_word, action_index)
         new_state_max = np.max(q_table[action_index])
 
         q_table[state, action_index] = (1 - alpha)*q_table[state, action_index] + alpha*(
             reward + gamma*new_state_max - q_table[state, action_index])
 
-        # Increment the steps
         steps = steps + 1
-
-        # Exit condition in case search too long, set currently to total length of initial corpus
         if steps >= len(words):
             break
 
@@ -463,13 +436,17 @@ while True:
     if game_result != "":
         play_again()
     for event in pygame.event.get():
+        # If quit, then exit the game e.g. alt-f4
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        # If the user pressed a key
         if event.type == pygame.KEYDOWN:
+            # If user pressed escape, reset the game
             if event.key == pygame.K_ESCAPE:
                 if game_result != "":
                     reset()
+            # If user pressed enter button, check the guess
             elif event.key == pygame.K_RETURN:
                 if presses < max_presses and len(current_guess_string) < 5:
                         key_pressed = str(letters.pop(0))
