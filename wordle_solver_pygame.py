@@ -255,12 +255,12 @@ pygame.init()
 # Constants
 WIDTH, HEIGHT = 633, 900
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT),pygame.SCALED)
-BACKGROUND = pygame.image.load("assets/Starting Tiles.png")
+BACKGROUND = pygame.image.load("GUI_files/assets/Starting Tiles.png")
 BACKGROUND_RECT = BACKGROUND.get_rect(center=(317, 300))
 SCREEN.fill("white")
 SCREEN.blit(BACKGROUND, BACKGROUND_RECT)
 
-ICON = pygame.image.load("assets/Icon.png")
+ICON = pygame.image.load("GUI_files/assets/Icon.png")
 pygame.display.set_icon(ICON)
 pygame.display.set_caption("Wordle AI Bot Solver")
 
@@ -271,8 +271,8 @@ OUTLINE = "#d3d6da"
 FILLED_OUTLINE = "#878a8c"
 
 ALPHABET = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
-GUESSED_LETTER_FONT = pygame.font.Font("assets/FreeSansBold.otf", 50)
-AVAILABLE_LETTER_FONT = pygame.font.Font("assets/FreeSansBold.otf", 25)
+GUESSED_LETTER_FONT = pygame.font.Font("GUI_files/assets/FreeSansBold.otf", 50)
+AVAILABLE_LETTER_FONT = pygame.font.Font("GUI_files/assets/FreeSansBold.otf", 25)
 
 pygame.display.update()
 
@@ -413,7 +413,7 @@ def check_guess(guess_to_check):
 def play_again():
     # Puts the play again text on the screen.
     pygame.draw.rect(SCREEN, "white", (10, 600, 1000, 600))
-    play_again_font = pygame.font.Font("assets/FreeSansBold.otf", 40)
+    play_again_font = pygame.font.Font("GUI_files/assets/FreeSansBold.otf", 40)
     play_again_text = play_again_font.render("Press ESC to rerun!", True, "black")
     play_again_rect = play_again_text.get_rect(center=(WIDTH/2, 700))
     word_was_text = play_again_font.render(f"Today's wordle is {CORRECT_WORD.upper()}!", True, "black")

@@ -13,10 +13,10 @@ from models.wordle_cluster_2k import run_simulations as rl_cluster_1
 from models.wordle_cluster_15k import run_simulations as rl_cluster_2
 from models.wordle_greedy_search_2k import run_simulations as rl_greedy_1
 from models.wordle_greedy_search_15k import run_simulations as rl_greedy_2
-from kivy.garden.matplotlib import FigureCanvasKivyAgg
 import numpy as np
 import matplotlib.pyplot as plt
-from complexRadar import ComplexRadar # Code taken online
+from GUI_files.complexRadar import ComplexRadar # Code taken online
+from kivy.garden.matplotlib import FigureCanvasKivyAgg
 
 class MainApp(App):
 
