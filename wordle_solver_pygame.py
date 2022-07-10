@@ -255,7 +255,7 @@ pygame.init()
 # Constants
 WIDTH, HEIGHT = 633, 900
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT),pygame.SCALED)
-BACKGROUND = pygame.image.load("GUI_files/assets/Starting Tiles.png")
+BACKGROUND = pygame.image.load("GUI_files/assets/starting_tiles.png")
 BACKGROUND_RECT = BACKGROUND.get_rect(center=(317, 300))
 SCREEN.fill("white")
 SCREEN.blit(BACKGROUND, BACKGROUND_RECT)
