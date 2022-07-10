@@ -10,7 +10,7 @@ from sklearn.cluster import AgglomerativeClustering
 '''Our AI wordle algorithm'''
 
 words = []
-with open('goal_words.txt', 'r') as file:
+with open('models/goal_words.txt', 'r') as file:
     for word in file:
         words.append(word.strip('\n').upper())
 
@@ -157,7 +157,6 @@ class eval():
         # Return filtered corpus
         return corpus
 
-# TODO: Add the Q-table values from our wordld_cluster_2 final simulation once optimal hyperparameters are found
 def reinforcement_learning(learning_rate: int,
                            exploration_rate: int, 
                            shrinkage_factor: int, 
@@ -177,8 +176,8 @@ def reinforcement_learning(learning_rate: int,
         return 1, ['CRANE']
     
     curr_corpus = words.copy()
-    q_table = np.zeros((number_of_cluster, number_of_cluster))
-
+    q_table = np.load('models/Q_table.npy')
+    
     # initialize distance matrix (similarities) and the clustering results
     clust = Clustering(number_of_cluster)
     distance_matrix = clust.get_dist_matrix(words)
@@ -256,12 +255,12 @@ pygame.init()
 # Constants
 WIDTH, HEIGHT = 633, 900
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT),pygame.SCALED)
-BACKGROUND = pygame.image.load("assets/Starting Tiles.png")
+BACKGROUND = pygame.image.load("GUI_files/assets/Starting Tiles.png")
 BACKGROUND_RECT = BACKGROUND.get_rect(center=(317, 300))
 SCREEN.fill("white")
 SCREEN.blit(BACKGROUND, BACKGROUND_RECT)
 
-ICON = pygame.image.load("assets/Icon.png")
+ICON = pygame.image.load("GUI_files/assets/Icon.png")
 pygame.display.set_icon(ICON)
 pygame.display.set_caption("Wordle AI Bot Solver")
 
@@ -272,8 +271,8 @@ OUTLINE = "#d3d6da"
 FILLED_OUTLINE = "#878a8c"
 
 ALPHABET = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
-GUESSED_LETTER_FONT = pygame.font.Font("assets/FreeSansBold.otf", 50)
-AVAILABLE_LETTER_FONT = pygame.font.Font("assets/FreeSansBold.otf", 25)
+GUESSED_LETTER_FONT = pygame.font.Font("GUI_files/assets/FreeSansBold.otf", 50)
+AVAILABLE_LETTER_FONT = pygame.font.Font("GUI_files/assets/FreeSansBold.otf", 25)
 
 pygame.display.update()
 
@@ -414,7 +413,7 @@ def check_guess(guess_to_check):
 def play_again():
     # Puts the play again text on the screen.
     pygame.draw.rect(SCREEN, "white", (10, 600, 1000, 600))
-    play_again_font = pygame.font.Font("assets/FreeSansBold.otf", 40)
+    play_again_font = pygame.font.Font("GUI_files/assets/FreeSansBold.otf", 40)
     play_again_text = play_again_font.render("Press ESC to rerun!", True, "black")
     play_again_rect = play_again_text.get_rect(center=(WIDTH/2, 700))
     word_was_text = play_again_font.render(f"Today's wordle is {CORRECT_WORD.upper()}!", True, "black")
@@ -434,7 +433,7 @@ def reset():
     current_guess = []
     current_guess_string = ""
     game_result = ""
-    visited_words = reinforcement_learning(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=10)
+    visited_words = reinforcement_learning(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=9)
     presses = 0
     letters = []
     for word in visited_words:

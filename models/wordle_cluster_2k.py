@@ -10,18 +10,13 @@ import matplotlib.pyplot as plt
 ''' List of feasible words that our reinforcement learning model will be trained on, 
 5-letter words from Wordle. Source: https://www.nytimes.com/games/wordle/index.html
 Extracted the 2309 goal words from the source code javascript file and then sorted accordingly. 
-Extracted the 12974 accepted words from the source code javascript file and then sorted accordingly.
+Only using the goal words as feasible words for the reinforcement learning model unlike wordle_cluster_1.py.
 https://www.pcmag.com/how-to/want-to-up-your-wordle-game-the-winning-word-is-right-on-the-page'''
 
 words = []
-with open('accepted_words.txt', 'r') as file:
+with open('models/goal_words.txt', 'r') as file:
     for word in file:
         words.append(word.strip('\n').upper())
-
-goal_words = []
-with open('goal_words.txt', 'r') as file:
-    for word in file:
-        goal_words.append(word.strip('\n').upper())
 
 ''' Instead of the words themselves being the state of the game, and also to further reduce the search space,
 the idea of clustering comes into mind. In order to measure the differences between two words without the sentiment value, 
@@ -78,7 +73,7 @@ class Wordle():
     def __init__(self, initial_word='CRANE'):
         self.current_word = initial_word
         self.current_state = None 
-        self.goal_word = random.choice(goal_words)
+        self.goal_word = random.choice(words)
         self.reached_goal = False
 
     # State is the current cluster number itself
@@ -312,7 +307,7 @@ def run_simulations(learning_rate: int,
     time_taken = tic_2 - toc_1
     average_guesses = np.mean(guesses)
     win_rate = (num_simulations-np.sum(guesses>6))/num_simulations*100
-
+    
     # print(f'Time for clustering: {tic_1 - toc_1}')
     # print(f'Time for learning: {tic_2 - toc_2}')
     # print(f'Average guesses: {np.mean(guesses)}')
@@ -325,5 +320,30 @@ def run_simulations(learning_rate: int,
     # plt.hist(guesses)
     # plt.show()
 
+def run_simulation_pygame(learning_rate: int,
+                          exploration_rate: int,
+                          shrinkage_factor: int,
+                          num_simulations:int,
+                          number_of_cluster: int):
+
+    clust = Clustering(number_of_cluster)
+    distance_matrix = clust.get_dist_matrix(words)
+    cluster_results = clust.get_clusters(words)
+    Q_table = np.load('Q_table.npy')
+
+    for epoch in tqdm(range(num_simulations)):
+        steps, visited_words = reinforcement_learning(learning_rate, 
+                                                      exploration_rate, 
+                                                      shrinkage_factor, 
+                                                      number_of_cluster,
+                                                      distance_matrix, 
+                                                      cluster_results, 
+                                                      Q_table)
+    return Q_table
+
 if __name__ == '__main__':
-    run_simulations(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=1000, number_of_cluster=10)
+    # Get the Q-table for our py-game implementation
+    # Q_table = run_simulation_pygame(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=100000, number_of_cluster=9)
+    # np.save('Q_table.npy', Q_table)
+    
+    run_simulations(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, num_simulations=1000, number_of_cluster=9)

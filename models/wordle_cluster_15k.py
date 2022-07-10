@@ -10,13 +10,18 @@ import matplotlib.pyplot as plt
 ''' List of feasible words that our reinforcement learning model will be trained on, 
 5-letter words from Wordle. Source: https://www.nytimes.com/games/wordle/index.html
 Extracted the 2309 goal words from the source code javascript file and then sorted accordingly. 
-Only using the goal words as feasible words for the reinforcement learning model unlike wordle_cluster_1.py.
+Extracted the 12974 accepted words from the source code javascript file and then sorted accordingly.
 https://www.pcmag.com/how-to/want-to-up-your-wordle-game-the-winning-word-is-right-on-the-page'''
 
 words = []
-with open('goal_words.txt', 'r') as file:
+with open('models/accepted_words.txt', 'r') as file:
     for word in file:
         words.append(word.strip('\n').upper())
+
+goal_words = []
+with open('models/goal_words.txt', 'r') as file:
+    for word in file:
+        goal_words.append(word.strip('\n').upper())
 
 ''' Instead of the words themselves being the state of the game, and also to further reduce the search space,
 the idea of clustering comes into mind. In order to measure the differences between two words without the sentiment value, 
@@ -73,7 +78,7 @@ class Wordle():
     def __init__(self, initial_word='CRANE'):
         self.current_word = initial_word
         self.current_state = None 
-        self.goal_word = random.choice(words)
+        self.goal_word = random.choice(goal_words)
         self.reached_goal = False
 
     # State is the current cluster number itself
@@ -307,7 +312,7 @@ def run_simulations(learning_rate: int,
     time_taken = tic_2 - toc_1
     average_guesses = np.mean(guesses)
     win_rate = (num_simulations-np.sum(guesses>6))/num_simulations*100
-    
+
     # print(f'Time for clustering: {tic_1 - toc_1}')
     # print(f'Time for learning: {tic_2 - toc_2}')
     # print(f'Average guesses: {np.mean(guesses)}')
