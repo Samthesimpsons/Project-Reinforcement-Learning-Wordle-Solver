@@ -94,54 +94,54 @@ class MainApp(App):
         parameter_row = GridLayout(rows=3, cols=2)
 
         # Cell 0,0 : learning rate
-        box1 = BoxLayout(orientation="horizontal")
+        self.box1 = BoxLayout(orientation="horizontal")
         self.learning_rate = 0.9
         self.learning_rate_text = Label(text=f'learning rate : {self.learning_rate}')
-        box1.add_widget(self.learning_rate_text)
+        self.box1.add_widget(self.learning_rate_text)
         self.learning_rate_slider = Slider(min=0,max=1,value=0.9,step=0.01)
         self.learning_rate_slider.bind(value=self.update_learning_rate_value)
-        box1.add_widget(self.learning_rate_slider)
-        parameter_row.add_widget(box1)
+        self.box1.add_widget(self.learning_rate_slider)
+        parameter_row.add_widget(self.box1)
 
         # Cell 0,1 : exploration rate
-        box2 = BoxLayout(orientation="horizontal")
+        self.box2 = BoxLayout(orientation="horizontal")
         self.exploration_rate = 0.9
         self.exploration_rate_text = Label(text=f'exploration rate : {self.exploration_rate}')
-        box2.add_widget(self.exploration_rate_text)
+        self.box2.add_widget(self.exploration_rate_text)
         self.exploration_rate_slider = Slider(min=0,max=1,value=0.9,step=0.01)
         self.exploration_rate_slider.bind(value=self.update_exploration_rate_value)
-        box2.add_widget(self.exploration_rate_slider)
-        parameter_row.add_widget(box2)
+        self.box2.add_widget(self.exploration_rate_slider)
+        parameter_row.add_widget(self.box2)
 
         # Cell 1,0 : shrinkage factor
-        box3 = BoxLayout(orientation="horizontal")
+        self.box3 = BoxLayout(orientation="horizontal")
         self.shrinkage_factor = 0.9
         self.shrinkage_factor_text = Label(text=f'shrinkage factor : {self.shrinkage_factor}')
-        box3.add_widget(self.shrinkage_factor_text)
+        self.box3.add_widget(self.shrinkage_factor_text)
         self.shrinkage_factor_slider = Slider(min=0,max=1,value=0.9,step=0.01)
         self.shrinkage_factor_slider.bind(value=self.update_shrinkage_factor_value)
-        box3.add_widget(self.shrinkage_factor_slider)
-        parameter_row.add_widget(box3)
+        self.box3.add_widget(self.shrinkage_factor_slider)
+        parameter_row.add_widget(self.box3)
 
         # Cell 1,1 : num clusters
-        box4 = BoxLayout(orientation="horizontal")
+        self.box4 = BoxLayout(orientation="horizontal")
         self.num_clusters = 10
         self.num_clusters_text = Label(text=f'num clusters : {self.num_clusters}')
-        box4.add_widget(self.num_clusters_text)
+        self.box4.add_widget(self.num_clusters_text)
         self.num_clusters_slider = Slider(min=1,max=50,value=10,step=1)
         self.num_clusters_slider.bind(value=self.update_num_clusters_value)
-        box4.add_widget(self.num_clusters_slider)
-        parameter_row.add_widget(box4)
+        self.box4.add_widget(self.num_clusters_slider)
+        parameter_row.add_widget(self.box4)
 
         # num_sims
-        box5 = BoxLayout(orientation="horizontal")
+        self.box5 = BoxLayout(orientation="horizontal")
         self.num_sims = 10
         self.num_sims_text = Label(text=f'num sims : {self.num_sims}')
-        box5.add_widget(self.num_sims_text)
+        self.box5.add_widget(self.num_sims_text)
         self.num_sims_slider = Slider(min=1,max=50,value=10,step=1)
         self.num_sims_slider.bind(value=self.update_num_sims_value)
-        box5.add_widget(self.num_sims_slider)
-        parameter_row.add_widget(box5)
+        self.box5.add_widget(self.num_sims_slider)
+        parameter_row.add_widget(self.box5)
 
         # run sims btn
         run_sim_row = BoxLayout(orientation='vertical')
@@ -158,6 +158,10 @@ class MainApp(App):
     def select_mode(self, instance):
         if instance.state == "normal":
             self.state = 0
+            self.learning_rate_slider.disabled = False
+            self.exploration_rate_slider.disabled = False
+            self.shrinkage_factor_slider.disabled = False
+            self.num_clusters_slider.disabled = False
         else:
             self.state = instance.id
             # print(self.state)
@@ -181,6 +185,19 @@ class MainApp(App):
             self.num_clusters = self.best_params[self.state][3]
             self.num_clusters_text.text = f"num clusters : {round(self.num_clusters,2)}"
             self.num_clusters_slider.value = self.num_clusters
+
+            if self.state == 4 or self.state == 5:
+                self.learning_rate_slider.disabled = True
+                self.exploration_rate_slider.disabled = True
+                self.shrinkage_factor_slider.disabled = True
+                self.num_clusters_slider.disabled = True
+            else:
+                self.learning_rate_slider.disabled = False
+                self.exploration_rate_slider.disabled = False
+                self.shrinkage_factor_slider.disabled = False
+                self.num_clusters_slider.disabled = False
+
+
 
 
     def update_learning_rate_value(self,instance,value):
@@ -236,6 +253,7 @@ class MainApp(App):
                 current_model = "Greedy Search 15k"
                 time_taken, average_guesses, win_rate,guesses = rl_greedy_2(self.num_sims)
                 epochs = np.arange(self.num_sims)
+
             else:
                 pass
 
