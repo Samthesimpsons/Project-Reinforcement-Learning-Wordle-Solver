@@ -98,7 +98,7 @@ class MainApp(App):
         self.learning_rate = 0.9
         self.learning_rate_text = Label(text=f'learning rate : {self.learning_rate}')
         self.box1.add_widget(self.learning_rate_text)
-        self.learning_rate_slider = Slider(min=0,max=1,value=0.9,step=0.01)
+        self.learning_rate_slider = Slider(min=0.001,max=0.1,value=0.9,step=0.001)
         self.learning_rate_slider.bind(value=self.update_learning_rate_value)
         self.box1.add_widget(self.learning_rate_slider)
         parameter_row.add_widget(self.box1)
@@ -108,7 +108,7 @@ class MainApp(App):
         self.exploration_rate = 0.9
         self.exploration_rate_text = Label(text=f'exploration rate : {self.exploration_rate}')
         self.box2.add_widget(self.exploration_rate_text)
-        self.exploration_rate_slider = Slider(min=0,max=1,value=0.9,step=0.01)
+        self.exploration_rate_slider = Slider(min=0.5,max=0.9,value=0.9,step=0.1)
         self.exploration_rate_slider.bind(value=self.update_exploration_rate_value)
         self.box2.add_widget(self.exploration_rate_slider)
         parameter_row.add_widget(self.box2)
@@ -118,7 +118,7 @@ class MainApp(App):
         self.shrinkage_factor = 0.9
         self.shrinkage_factor_text = Label(text=f'shrinkage factor : {self.shrinkage_factor}')
         self.box3.add_widget(self.shrinkage_factor_text)
-        self.shrinkage_factor_slider = Slider(min=0,max=1,value=0.9,step=0.01)
+        self.shrinkage_factor_slider = Slider(min=0.5,max=0.9,value=0.9,step=0.1)
         self.shrinkage_factor_slider.bind(value=self.update_shrinkage_factor_value)
         self.box3.add_widget(self.shrinkage_factor_slider)
         parameter_row.add_widget(self.box3)
@@ -128,7 +128,7 @@ class MainApp(App):
         self.num_clusters = 10
         self.num_clusters_text = Label(text=f'num clusters : {self.num_clusters}')
         self.box4.add_widget(self.num_clusters_text)
-        self.num_clusters_slider = Slider(min=1,max=50,value=10,step=1)
+        self.num_clusters_slider = Slider(min=6,max=10,value=10,step=1)
         self.num_clusters_slider.bind(value=self.update_num_clusters_value)
         self.box4.add_widget(self.num_clusters_slider)
         parameter_row.add_widget(self.box4)
@@ -168,7 +168,7 @@ class MainApp(App):
             
             # learning_rate defaults
             self.learning_rate = self.best_params[self.state][0]
-            self.learning_rate_text.text = f"learning rate : {round(self.learning_rate,2)}"
+            self.learning_rate_text.text = f"learning rate : {round(self.learning_rate,3)}"
             self.learning_rate_slider.value = self.learning_rate
             
             # exploration_rate defaults
@@ -201,7 +201,7 @@ class MainApp(App):
 
 
     def update_learning_rate_value(self,instance,value):
-        self.learning_rate_text.text = f"learning rate : {round(value,2)}"
+        self.learning_rate_text.text = f"learning rate : {round(value,3)}"
         self.learning_rate = value
 
     def update_exploration_rate_value(self,instance,value):
