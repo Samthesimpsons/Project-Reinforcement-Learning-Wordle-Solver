@@ -17,11 +17,44 @@ import numpy as np
 import matplotlib.pyplot as plt
 from GUI_files.complexRadar import ComplexRadar # Code taken online
 from kivy.garden.matplotlib import FigureCanvasKivyAgg
+from kivy.uix.progressbar import ProgressBar
+from kivy.properties import StringProperty
+from kivy.clock import mainthread
+
+import threading
+import time
+
+# class LoadingPopup(Popup):
+#     counter = 0
+#     data_label = StringProperty("Nothing yet!")
+
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+#         threading.Thread(target=self.get_data).start()
+
+#     def get_data(self):
+#         while App.get_running_app():
+#             # get data here
+#             # sock.recv(1024) or how you do it
+#             time.sleep(1)
+
+#             # if you change the UI you need to do it on main thread
+#             self.set_data_label(self.counter)
+
+#             self.counter += 1
+
+    @mainthread
+    def set_data_label(self, data):
+        self.data_label = str(data)
+
+
+
 
 class MainApp(App):
 
     def build(self):
         # initialize some variables
+        self.training = False
         self.state = 0
         self.current_words_on_display = []
         self.currently_displayed = {
@@ -226,6 +259,7 @@ class MainApp(App):
         current_model = None
         popup_content = BoxLayout(orientation = "vertical")
 
+        
         if self.state == 0:
             warning_text = Label(text="No models selected")
             popup_content.add_widget(warning_text)
@@ -233,30 +267,47 @@ class MainApp(App):
         else:
             # graphs
             popup_content.clear_widgets()
-            if self.state == 1:
-                current_model = "RL Base"
-                time_taken, average_guesses, win_rate,guesses = rl_base(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims)
-                epochs = np.arange(self.num_sims)
-            elif self.state == 2:
-                current_model = "RL Cluster 2k"
-                time_taken, average_guesses, win_rate,guesses = rl_cluster_1(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
-                epochs = np.arange(self.num_sims)
-            elif self.state == 3:
-                current_model = "RL Cluster 15k"
-                time_taken, average_guesses, win_rate,guesses = rl_cluster_2(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
-                epochs = np.arange(self.num_sims)
-            elif self.state == 4:
-                current_model = "Greedy Search 2k"
-                time_taken, average_guesses, win_rate,guesses = rl_greedy_1(self.num_sims)
-                epochs = np.arange(self.num_sims)
-            elif self.state == 5:
-                current_model = "Greedy Search 15k"
-                time_taken, average_guesses, win_rate,guesses = rl_greedy_2(self.num_sims)
-                epochs = np.arange(self.num_sims)
+            # progress_popup = Popup(title="Results", content=self.progress_bar_popout, auto_dismiss=False)
+            # progress_popup.open()
+            # print("open")
 
-            else:
-                pass
+            # self.progress_bar_popout = LoadingPopup()
+            # self.progress_bar_popout.open()
+            self.training = True
+            
+            # if self.state == 1:
+            #     current_model = "RL Base"
+            #     time_taken, average_guesses, win_rate,guesses = rl_base(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims)
+            #     epochs = np.arange(self.num_sims)
+            # elif self.state == 2:
+            #     current_model = "RL Cluster 2k"
+            #     time_taken, average_guesses, win_rate,guesses = rl_cluster_1(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
+            #     epochs = np.arange(self.num_sims)
+            # elif self.state == 3:
+            #     current_model = "RL Cluster 15k"
+            #     time_taken, average_guesses, win_rate,guesses = rl_cluster_2(self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters)
+            #     epochs = np.arange(self.num_sims)
+            # elif self.state == 4:
+            #     current_model = "Greedy Search 2k"
+            #     time_taken, average_guesses, win_rate,guesses = rl_greedy_1(self.num_sims)
+            #     epochs = np.arange(self.num_sims)
+            # elif self.state == 5:
+            #     current_model = "Greedy Search 15k"
+            #     time_taken, average_guesses, win_rate,guesses = rl_greedy_2(self.num_sims)
+            #     epochs = np.arange(self.num_sims)
 
+            # else:
+            #     pass
+            
+            print(self.state)
+            results_list = []
+            threading.Thread(target=self.run_model, args=[self.state, self.learning_rate,self.exploration_rate,self.shrinkage_factor,self.num_sims,self.num_clusters,results_list]).start()
+            print(results_list)
+            current_model, time_taken, average_guesses, win_rate,guesses, epochs = results_list
+            
+            self.training = False
+            # progress_popup.dismiss()
+            # print("close")
             plt.figure(0) # First plot of epochs vs guesses
             plt.bar(epochs,guesses,alpha=0.5, label=self.state_dict[self.state])
             # plt.legend(bbox_to_anchor=(1.04,0.5), loc="upper left")
@@ -303,6 +354,45 @@ class MainApp(App):
 
         # open the popup
         popup.open()
+
+    def get_data(self):
+        while App.get_running_app():
+            # get data here
+            # sock.recv(1024) or how you do it
+            time.sleep(1)
+
+            # if you change the UI you need to do it on main thread
+            self.set_data_label(self.counter)
+
+            self.counter += 1
+
+    def run_model(self, state, learning_rate,exploration_rate,shrinkage_factor,num_sims,num_clusters, out_list):
+        if state == 1:
+            current_model = "RL Base"
+            time_taken, average_guesses, win_rate,guesses = rl_base(learning_rate,exploration_rate,shrinkage_factor,num_sims)
+            epochs = np.arange(num_sims)
+        elif state == 2:
+            current_model = "RL Cluster 2k"
+            time_taken, average_guesses, win_rate,guesses = rl_cluster_1(learning_rate,exploration_rate,shrinkage_factor,num_sims,num_clusters)
+            epochs = np.arange(num_sims)
+        elif state == 3:
+            current_model = "RL Cluster 15k"
+            time_taken, average_guesses, win_rate,guesses = rl_cluster_2(learning_rate,exploration_rate,shrinkage_factor,num_sims,num_clusters)
+            epochs = np.arange(num_sims)
+        elif state == 4:
+            current_model = "Greedy Search 2k"
+            time_taken, average_guesses, win_rate,guesses = rl_greedy_1(num_sims)
+            epochs = np.arange(num_sims)
+        elif state == 5:
+            current_model = "Greedy Search 15k"
+            time_taken, average_guesses, win_rate,guesses = rl_greedy_2(num_sims)
+            epochs = np.arange(num_sims)
+
+        else:
+            pass
+        
+        out_list.extend([current_model,time_taken, average_guesses, win_rate,guesses, epochs])
+        return out_list
 
 if __name__ == "__main__":
     MainApp().run()
