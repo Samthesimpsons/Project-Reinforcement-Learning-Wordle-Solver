@@ -43,9 +43,9 @@ import time
 
 #             self.counter += 1
 
-    @mainthread
-    def set_data_label(self, data):
-        self.data_label = str(data)
+    # @mainthread
+    # def set_data_label(self, data):
+    #     self.data_label = str(data)
 
 
 
