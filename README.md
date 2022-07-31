@@ -8,7 +8,7 @@
 
 Playing Wordle from https://www.nytimes.com/games/wordle/index.html on hard mode
 
-Proposed Models:
+Proposed Models under `*/models`
 
 1. Wordle Basic RL (15k words)
 2. Wordle Hierarchical Clustering based on Levenshtein distance RL (15k words)
@@ -16,13 +16,13 @@ Proposed Models:
 4. Search Algorithm (15k words)
 5. Search Algorithm (2k words)
 
-Evaluate the speed and accuracy between using 15k and 2k words;
-Similar evaluate the speed and accuracy between using RL and Search.
+Evaluate between all models, under `analysis.ipynb`. 
+Results saved to `*/evaluation_results` and `*/grid_search_results`
 
 Proposed GUI:
 
-- Daily Wordle Solver GUI using PyGame
-- Model Performance GUI using Kivy
+- Daily Wordle Solver GUI using PyGame under `wordle_solver_pygame.py`
+- Model Performance GUI using Kivy under `wordle_performance_kivy.py`
 
 **Tools used:**
-1. **Python** under requirements.txt
+1. **Python**, env under `requirements.txt`.
