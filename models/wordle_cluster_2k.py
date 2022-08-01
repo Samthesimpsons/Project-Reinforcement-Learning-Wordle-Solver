@@ -1,3 +1,5 @@
+'''No references made, done from scratch'''
+
 import re
 import time
 import random
@@ -291,7 +293,7 @@ def run_simulations(learning_rate: int,
     Q_table = np.zeros((number_of_cluster, number_of_cluster))
 
     toc_2 = time.time()
-    for epoch in range(num_simulations):
+    for epoch in tqdm(range(num_simulations)):
         steps, visited_words = reinforcement_learning(learning_rate, 
                                                       exploration_rate, 
                                                       shrinkage_factor, 

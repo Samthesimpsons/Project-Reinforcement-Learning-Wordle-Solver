@@ -1,3 +1,5 @@
+'''No references made, done from scratch'''
+
 import re
 import random
 import time

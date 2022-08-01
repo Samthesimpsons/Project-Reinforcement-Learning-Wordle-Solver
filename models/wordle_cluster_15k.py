@@ -1,3 +1,5 @@
+'''No references made, done from scratch'''
+
 import re
 import time
 import random
@@ -286,6 +288,7 @@ def run_simulations(learning_rate: int,
     guesses = np.zeros(num_simulations)
     
     toc_1 = time.time()
+    print("clustering...")
     clust = Clustering(number_of_cluster)
     distance_matrix = clust.get_dist_matrix(words)
     cluster_results = clust.get_clusters(words)
@@ -296,7 +299,7 @@ def run_simulations(learning_rate: int,
     Q_table = np.zeros((number_of_cluster, number_of_cluster))
 
     toc_2 = time.time()
-    for epoch in range(num_simulations):
+    for epoch in tqdm(range(num_simulations)):
         steps, visited_words = reinforcement_learning(learning_rate, 
                                                       exploration_rate, 
                                                       shrinkage_factor, 

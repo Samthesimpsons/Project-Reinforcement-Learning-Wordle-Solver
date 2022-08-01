@@ -8,6 +8,7 @@ import string
 import random
 import time
 import numpy as np
+from tqdm import tqdm
 
 #Edited function from interface.py
 def evalGuess(guess, target):
@@ -191,7 +192,7 @@ def run_simulations(num_simulations:int):
     guesses = np.zeros(num_simulations)
     words = getGoalWords()
 
-    for epoch in range(num_simulations):
+    for epoch in tqdm(range(num_simulations)):
         attempt = 1
 
         ''' Line 8 and 9 interchangable for scoring words with different methods'''

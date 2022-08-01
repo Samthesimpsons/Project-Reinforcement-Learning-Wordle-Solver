@@ -7,6 +7,8 @@ from datetime import date
 from leven import levenshtein
 from sklearn.cluster import AgglomerativeClustering
 
+##### PRESS ENTER TO PLAY THE GAME #####
+
 '''Our AI wordle algorithm similar to model/wordle_cluster_2k.py but modified slightly.'''
 
 words = []
@@ -15,14 +17,15 @@ with open('models/goal_words.txt', 'r') as file:
         words.append(word.strip('\n').upper())
 
 reference_goal = words.index('BEADY')
-date_diff = (date.today() - date(2022,6,25)).days
+date_diff = (date.today() - date(2022, 6, 25)).days
 CORRECT_WORD = words[reference_goal + date_diff].lower()
 
+
 class Clustering():
-    def __init__(self, number_of_clusters:int):
+    def __init__(self, number_of_clusters: int):
         self.number_of_clusters = number_of_clusters
 
-    def get_dist_matrix(self, corpus:list):
+    def get_dist_matrix(self, corpus: list):
         n = len(corpus)
         distance_matrix = np.zeros((n, n))
         for i in range(n):
@@ -31,29 +34,30 @@ class Clustering():
                 distance_matrix[j, i] = distance_matrix[i, j]
         return distance_matrix
 
-    def get_indexes_of_cluster(self, cluster_number:int, clusters:list):
+    def get_indexes_of_cluster(self, cluster_number: int, clusters: list):
         indexes = []
         for index, number in enumerate(clusters):
             if cluster_number == number:
                 indexes.append(index)
         return indexes
 
-    def get_chosen_word(self, indexes:list, corpus:list):
+    def get_chosen_word(self, indexes: list, corpus: list):
         chosen_word_index = random.choice(indexes)
         return corpus[chosen_word_index]
 
-    def get_clusters(self, corpus:list):
+    def get_clusters(self, corpus: list):
         distance_matrix = self.get_dist_matrix(corpus)
         clusters = AgglomerativeClustering(
-            n_clusters=self.number_of_clusters, 
-            affinity='precomputed', 
+            n_clusters=self.number_of_clusters,
+            affinity='precomputed',
             linkage='average').fit_predict(distance_matrix)
         return clusters
+
 
 class Wordle():
     def __init__(self, initial_word='CRANE'):
         self.current_word = initial_word
-        self.current_state = None 
+        self.current_state = None
         self.goal_word = CORRECT_WORD.upper()
         self.reached_goal = False
 
@@ -78,11 +82,12 @@ class Wordle():
             return reward, True
         return reward, False
 
+
 class eval():
     def __init__(self):
         pass
 
-    def get_score(word_1:str , word_2:str):
+    def get_score(word_1: str, word_2: str):
         scoring = {'green': 0, 'yellow': 0, 'black': 0}
         for i in range(5):
             if word_1[i] == word_2[i]:
@@ -93,17 +98,17 @@ class eval():
                 scoring['black'] += 1
         return scoring
 
-    def get_reward(new_scoring:dict, previous_score:dict):
+    def get_reward(new_scoring: dict, previous_score: dict):
         reward = 0
-        reward += (new_scoring['green'] - previous_score['green'])*10 
-        reward += (new_scoring['yellow'] - previous_score['yellow'])*5 
-        reward -= (new_scoring['black'] - previous_score['black'])*1 
+        reward += (new_scoring['green'] - previous_score['green'])*10
+        reward += (new_scoring['yellow'] - previous_score['yellow'])*5
+        reward -= (new_scoring['black'] - previous_score['black'])*1
         return reward
 
-    def filter(filter_word:str, goal_word:str, corpus:list):
-        black_letters = []  
-        yellow_letters = {}  
-        green_letters = {}  
+    def filter(filter_word: str, goal_word: str, corpus: list):
+        black_letters = []
+        yellow_letters = {}
+        green_letters = {}
 
         for i in range(5):
             if filter_word[i] != goal_word[i] and filter_word[i] not in goal_word:
@@ -138,28 +143,29 @@ class eval():
 
         return corpus
 
+
 def reinforcement_learning(learning_rate: int,
-                           exploration_rate: int, 
-                           shrinkage_factor: int, 
+                           exploration_rate: int,
+                           shrinkage_factor: int,
                            number_of_cluster: int):
 
-    epsilon = exploration_rate  
-    alpha = learning_rate  
-    gamma = shrinkage_factor  
+    epsilon = exploration_rate
+    alpha = learning_rate
+    gamma = shrinkage_factor
 
     wordle = Wordle()
     done = False
-    steps = 1 
+    steps = 1
 
     goal_word = wordle.get_goal()
     if goal_word == 'CRANE':
         return 1, ['CRANE']
-    
+
     curr_corpus = words.copy()
 
     # MODIFICATION here, to initialize the trained Q-table
     q_table = np.load('models/Q_table.npy')
-    
+
     clust = Clustering(number_of_cluster)
     distance_matrix = clust.get_dist_matrix(words)
     cluster_results = clust.get_clusters(words)
@@ -175,7 +181,7 @@ def reinforcement_learning(learning_rate: int,
 
         prev_corpus = curr_corpus.copy()
         curr_corpus = eval.filter(word_to_filter_on, goal_word, curr_corpus)
-        
+
         indices_removed = []
         for i, word in enumerate(prev_corpus):
             if word not in curr_corpus:
@@ -185,25 +191,26 @@ def reinforcement_learning(learning_rate: int,
         distance_matrix = np.delete(distance_matrix, indices_removed, axis=1)
         cluster_results = np.delete(cluster_results, indices_removed, axis=0)
 
-        epsilon = epsilon / (steps ** 2) 
-        if random.uniform(0, 1) < epsilon: 
+        epsilon = epsilon / (steps ** 2)
+        if random.uniform(0, 1) < epsilon:
             list_of_states_to_explore = list(set(cluster_results))
             if len(list_of_states_to_explore) != 1:
                 if state in list_of_states_to_explore:
                     list_of_states_to_explore.remove(state)
             action_index = random.choice(list_of_states_to_explore)
 
-        else: 
+        else:
             if np.all(q_table[state][i] == q_table[state][0] for i in range(len(curr_corpus))):
                 list_of_states_to_explore = list(set(cluster_results))
                 if len(list_of_states_to_explore) != 1:
                     if state in list_of_states_to_explore:
                         list_of_states_to_explore.remove(state)
                 action_index = random.choice(list_of_states_to_explore)
-            else: 
+            else:
                 action_index = np.argmax(q_table[state])
 
-        chosen_word = clust.get_chosen_word(clust.get_indexes_of_cluster(action_index, cluster_results), curr_corpus)
+        chosen_word = clust.get_chosen_word(clust.get_indexes_of_cluster(
+            action_index, cluster_results), curr_corpus)
 
         reward, done = wordle.make_action(chosen_word, action_index)
         new_state_max = np.max(q_table[action_index])
@@ -218,8 +225,12 @@ def reinforcement_learning(learning_rate: int,
     visited_words.append(goal_word)
     return visited_words
 
-'''Pygame Environment, referenced https://github.com/baraltech/Wordle-PyGame for the UI layout, 
-adjusted the cases and code to our AI bot solver case.'''
+
+'''
+References:
+Pygame Environment: https://github.com/baraltech/Wordle-PyGame for the UI layout, 
+adjusted the cases and code to our AI bot solver case.
+'''
 
 WORDS = [word.lower() for word in words]
 
@@ -227,7 +238,7 @@ pygame.init()
 
 # Constants
 WIDTH, HEIGHT = 633, 900
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT),pygame.SCALED)
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED)
 BACKGROUND = pygame.image.load("GUI_files/assets/starting_tiles.png")
 BACKGROUND_RECT = BACKGROUND.get_rect(center=(317, 300))
 SCREEN.fill("white")
@@ -245,7 +256,8 @@ FILLED_OUTLINE = "#878a8c"
 
 ALPHABET = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
 GUESSED_LETTER_FONT = pygame.font.Font("GUI_files/assets/FreeSansBold.otf", 50)
-AVAILABLE_LETTER_FONT = pygame.font.Font("GUI_files/assets/FreeSansBold.otf", 25)
+AVAILABLE_LETTER_FONT = pygame.font.Font(
+    "GUI_files/assets/FreeSansBold.otf", 25)
 
 pygame.display.update()
 
@@ -268,7 +280,8 @@ current_letter_bg_x = 110
 indicators = []
 
 # List of words from our AI solver and their letters to display
-visited_words = reinforcement_learning(learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=10)
+visited_words = reinforcement_learning(
+    learning_rate=0.1, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=10)
 
 letters = []
 for word in visited_words:
@@ -282,6 +295,7 @@ presses = 0
 
 game_result = ""
 
+
 class Letter:
     def __init__(self, text, bg_position):
         # Initializes all the variables, including text, color, position, size, etc.
@@ -293,7 +307,8 @@ class Letter:
         self.bg_rect = (bg_position[0], self.bg_y, LETTER_SIZE, LETTER_SIZE)
         self.text = text
         self.text_position = (self.bg_x+36, self.bg_position[1]+34)
-        self.text_surface = GUESSED_LETTER_FONT.render(self.text, True, self.text_color)
+        self.text_surface = GUESSED_LETTER_FONT.render(
+            self.text, True, self.text_color)
         self.text_rect = self.text_surface.get_rect(center=self.text_position)
 
     def draw(self):
@@ -301,9 +316,11 @@ class Letter:
         pygame.draw.rect(SCREEN, self.bg_color, self.bg_rect)
         if self.bg_color == "white":
             pygame.draw.rect(SCREEN, FILLED_OUTLINE, self.bg_rect, 3)
-        self.text_surface = GUESSED_LETTER_FONT.render(self.text, True, self.text_color)
+        self.text_surface = GUESSED_LETTER_FONT.render(
+            self.text, True, self.text_color)
         SCREEN.blit(self.text_surface, self.text_rect)
         pygame.display.update()
+
 
 class Indicator:
     def __init__(self, x, y, letter):
@@ -317,12 +334,15 @@ class Indicator:
     def draw(self):
         # Puts the indicator and its text on the screen at the desired position.
         pygame.draw.rect(SCREEN, self.bg_color, self.rect)
-        self.text_surface = AVAILABLE_LETTER_FONT.render(self.text, True, "white")
-        self.text_rect = self.text_surface.get_rect(center=(self.x+27, self.y+30))
+        self.text_surface = AVAILABLE_LETTER_FONT.render(
+            self.text, True, "white")
+        self.text_rect = self.text_surface.get_rect(
+            center=(self.x+27, self.y+30))
         SCREEN.blit(self.text_surface, self.text_rect)
         pygame.display.update()
 
 # Drawing the indicators on the screen.
+
 
 indicator_x, indicator_y = 20, 600
 
@@ -337,6 +357,7 @@ for i in range(3):
         indicator_x = 50
     elif i == 1:
         indicator_x = 105
+
 
 def check_guess(guess_to_check):
     # Goes through each letter and checks if it should be green, yellow, or grey.
@@ -374,7 +395,7 @@ def check_guess(guess_to_check):
             game_decided = True
         guess_to_check[i].draw()
         pygame.display.update()
-    
+
     guesses_count += 1
     current_guess = []
     current_guess_string = ""
@@ -383,17 +404,21 @@ def check_guess(guess_to_check):
     if guesses_count == 6 and game_result == "":
         game_result = "L"
 
+
 def play_again():
     # Puts the play again text on the screen.
     pygame.draw.rect(SCREEN, "white", (10, 600, 1000, 600))
     play_again_font = pygame.font.Font("GUI_files/assets/FreeSansBold.otf", 40)
-    play_again_text = play_again_font.render("Press ESC to rerun!", True, "black")
+    play_again_text = play_again_font.render(
+        "Press ESC to rerun!", True, "black")
     play_again_rect = play_again_text.get_rect(center=(WIDTH/2, 700))
-    word_was_text = play_again_font.render(f"Today's wordle is {CORRECT_WORD.upper()}!", True, "black")
+    word_was_text = play_again_font.render(
+        f"Today's wordle is {CORRECT_WORD.upper()}!", True, "black")
     word_was_rect = word_was_text.get_rect(center=(WIDTH/2, 650))
     SCREEN.blit(word_was_text, word_was_rect)
     SCREEN.blit(play_again_text, play_again_rect)
     pygame.display.update()
+
 
 def reset():
     # Resets some global variables to their default states.
@@ -406,13 +431,14 @@ def reset():
     current_guess = []
     current_guess_string = ""
     game_result = ""
-    visited_words = reinforcement_learning(learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=9)
+    visited_words = reinforcement_learning(
+        learning_rate=0.001, exploration_rate=0.9, shrinkage_factor=0.9, number_of_cluster=9)
     presses = 0
     letters = []
     for word in visited_words:
         word_letters = list(word)
         for letter in word_letters:
-            letters.append(letter)           
+            letters.append(letter)
     max_presses = len(letters)
 
     pygame.display.update()
@@ -420,17 +446,20 @@ def reset():
         indicator.bg_color = OUTLINE
         indicator.draw()
 
+
 def create_new_letter():
     # Creates a new letter and adds it to the guess.
     global current_guess_string, current_letter_bg_x
     current_guess_string += key_pressed
-    new_letter = Letter(key_pressed, (current_letter_bg_x, guesses_count*100+LETTER_Y_SPACING))
+    new_letter = Letter(key_pressed, (current_letter_bg_x,
+                        guesses_count*100+LETTER_Y_SPACING))
     current_letter_bg_x += LETTER_X_SPACING
     guesses[guesses_count].append(new_letter)
     current_guess.append(new_letter)
     for guess in guesses:
         for letter in guess:
             letter.draw()
+
 
 while True:
     if game_result != "":
@@ -449,8 +478,8 @@ while True:
             # If user pressed enter button, check the guess
             elif event.key == pygame.K_RETURN:
                 if presses < max_presses and len(current_guess_string) < 5:
-                        key_pressed = str(letters.pop(0))
-                        presses += 1
-                        create_new_letter()
+                    key_pressed = str(letters.pop(0))
+                    presses += 1
+                    create_new_letter()
                 if len(current_guess_string) == 5 and current_guess_string.lower() in WORDS:
                     check_guess(current_guess)

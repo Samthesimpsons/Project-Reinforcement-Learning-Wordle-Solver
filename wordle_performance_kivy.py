@@ -1,3 +1,8 @@
+'''References 
+Radarplot: https://towardsdatascience.com/how-to-make-stunning-radar-charts-with-python-implemented-in-matplotlib-and-plotly-91e21801d8ca
+Kivy code done from scratch
+'''
+
 from pyexpat import model
 from kivy.app import App
 from kivy.uix.label import Label
